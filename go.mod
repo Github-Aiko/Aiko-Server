@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/golang/protobuf v1.5.2
-	github.com/sirupsen/logrus v1.8.1
+	github.com/sirupsen/logrus v1.9.0
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/xtls/xray-core v1.6.4
 )
