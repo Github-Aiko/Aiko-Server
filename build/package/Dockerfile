@@ -4,13 +4,12 @@ WORKDIR /app
 COPY . .
 ENV CGO_ENABLED=0
 RUN go mod download
-RUN go build -v -o server-trojan -trimpath -ldflags "-s -w" ./cmd/server
+RUN go build -v -o aiko-server -trimpath -ldflags "-s -w" ./cmd/server
 
 # Release
 FROM  alpine
-# 安装必要的工具包
 RUN  apk --update --no-cache add tzdata ca-certificates \
-    && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+    && cp /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime
 
-COPY --from=builder /app/server-trojan /usr/local/bin
-ENTRYPOINT server-trojan -api="$API" -token="$TOKEN" -node="$NODE"
+COPY --from=builder /app/aiko-server /usr/local/bin
+ENTRYPOINT aiko-server -api="$API" -token="$TOKEN" -node="$NODE"
