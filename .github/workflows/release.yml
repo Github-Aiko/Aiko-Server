@@ -85,7 +85,7 @@ jobs:
         run: |
           mv build_assets Aiko-Server-$ASSET_NAME
       - name: Upload files to Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Aiko-Server-${{ steps.get_filename.outputs.ASSET_NAME }}
           path: |
