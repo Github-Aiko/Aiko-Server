@@ -1,0 +1,15 @@
+example/config.yml
+example/main
+example/XrayR
+example/XrayR*
+example/mytest
+example/access.logo
+example/error.log
+api/chooseparser.go.bak
+app/Inboundbuilder/.lego/
+app/legocmd/.lego/
+.vscode/launch.json
+example/.lego
+example/cert
+./vscode
+.idea/*

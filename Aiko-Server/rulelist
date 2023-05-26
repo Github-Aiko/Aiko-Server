@@ -1,0 +1,3 @@
+.*whatismyip.*
+(.*.||)(ipaddress|whatismyipaddress|whoer|iplocation|whatismyip|checkip|ipaddress|showmyip).(org|com|net|my|to|co|vn|my|io)
+(.*\.||)(speed|speedtest|fast|speed.cloudflare|speedtest.xfinity|speedtestcustom|speedof|testmy|i-speed|speedtest.vnpt|nperf|speedtest.telstra|i-speed|merter|speed|speedcheck|zingfast)\.(com|cn|net|co|xyz|dev|edu|pro|vn|me|io|org)
