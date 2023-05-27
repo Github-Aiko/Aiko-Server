@@ -12,8 +12,8 @@ Aiko Server For AikoPanel
 </div>
 
 
-# Description of AikoR
-AikoR Supports for AikoPanel
+# Description of Aiko-Server
+Aiko-Server Supports for AikoPanel
 
 An Xray-based back-end framework, supporting V2ay, Trojan, Shadowsocks protocols, extremely easily extensible and supporting multi-panel connection。
 
