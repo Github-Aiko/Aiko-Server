@@ -2,11 +2,13 @@ package conf
 
 import (
 	"fmt"
-	"github.com/fsnotify/fsnotify"
-	"gopkg.in/yaml.v3"
 	"log"
 	"os"
 	"path"
+
+	"github.com/fsnotify/fsnotify"
+	"github.com/imdario/mergo"
+	"gopkg.in/yaml.v3"
 )
 
 type Conf struct {
@@ -42,6 +44,12 @@ func (p *Conf) LoadFromPath(filePath string) error {
 	err = yaml.NewDecoder(f).Decode(p)
 	if err != nil {
 		return fmt.Errorf("decode config error: %s", err)
+	}
+	ControllerConfig := getDefaultControllerConfig()
+	if ControllerConfig != nil {
+		if err := mergo.Merge(p, ControllerConfig); err != nil {
+			return fmt.Errorf("merge config error: %s", err)
+		}
 	}
 	return nil
 }
