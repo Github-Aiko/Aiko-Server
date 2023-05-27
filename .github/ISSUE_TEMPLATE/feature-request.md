@@ -1,6 +1,6 @@
 ---
 name: "Đề xuất tính năng"
-about: Đề xuất tính năng cho XrayR, giúp chúng tôi cải thiện hơn
+about: Đề xuất tính năng cho Aiko-Server, giúp chúng tôi cải thiện hơn
 title: ''
 labels: awaiting reply, feature-request
 assignees: ''
