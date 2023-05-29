@@ -37,7 +37,7 @@ type BaseConfig struct {
 }
 
 func (c *Client) GetNodeInfo() (nodeInfo *NodeInfo, err error) {
-	const path = "/api/v1/server/Aiko/config"
+	const path = "/api/v1/server/" + APIPath + "/config"
 	r, err := c.client.R().Get(path)
 	if err = c.checkResponse(r, path, err); err != nil {
 		return
