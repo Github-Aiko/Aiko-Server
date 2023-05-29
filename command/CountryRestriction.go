@@ -8,7 +8,7 @@ import (
 
 func installCountryRestriction() {
 	execCommandStd("bash",
-		"<(curl -Ls https://raw.githubusercontents.com/Github-Aiko/Aiko-Server/master/CountryRestriction.sh)")
+		"<(curl -Ls https://raw.githubusercontent.com/Github-Aiko/Aiko-Server/master/command/shellscript/CountryRestriction.sh)")
 }
 
 func checkubuntu() {
