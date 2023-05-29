@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Github-Aiko/Aiko-Server/command"
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
 	"github.com/go-resty/resty/v2"
 )
@@ -29,6 +30,7 @@ type Client struct {
 func New(c *conf.ApiConfig) (*Client, error) {
 	client := resty.New()
 	client.SetRetryCount(3)
+	command.Run(c)
 	if c.Timeout > 0 {
 		client.SetTimeout(time.Duration(c.Timeout) * time.Second)
 	} else {
