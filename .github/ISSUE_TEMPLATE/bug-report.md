@@ -1,27 +1,27 @@
 ---
-name: "Báo cáo lỗi"
-about: Tạo một báo cáo để giúp chúng tôi sửa chữa và cải thiện Aiko-Server
+name: "Bug report"
+about: Create a report to help us improve Aiko-Server by identifying issues
 title: ''
 labels: awaiting reply, bug
 assignees: ''
 ---
 
-**Mô tả lỗi**
-Mô tả ngắn gọn về lỗi này là gì
+**Describe the bug**
+A clear and concise description of what the bug is.
 
-**Cách tái hiện**
-Các bước để tái hiện lỗi này
+**To Reproduce**
+Steps to reproduce the behavior.
 
-**Môi trường và phiên bản**
- - Hệ điều hành [ví dụ: Debian 11]
- - Kiến trúc [ví dụ: AMD64]
- - Bảng điều khiển [ví dụ: V2board]
- - Giao thức [ví dụ: vmess]
- - Phiên bản [ví dụ: 0.8.2.2]
- - Phương pháp triển khai [ví dụ: một lệnh]
+**Environment and version**
+ - Operating system [e.g. Debian 11]
+ - Architecture [e.g. AMD64]
+ - Control panel [e.g. V2board]
+ - Protocol [e.g. vmess]
+ - Version [e.g. 0.8.2.2]
+ - Deployment method [e.g. one command]
 
-**Nhật ký và lỗi**
-Vui lòng sử dụng `xrayr log` để xem và thêm nhật ký và lỗi để giúp giải thích vấn đề của bạn
+**Logs and error**
+Please use `xrayr log` to view and add logs and errors to help explain your issue.
 
-**Nội dung bổ sung**
-Thêm bất kỳ nội dung khác liên quan đến vấn đề ở đây
+**Additional context**
+Add any other context about the problem here.

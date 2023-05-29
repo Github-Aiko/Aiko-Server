@@ -1,19 +1,19 @@
 ---
-name: "Đề xuất tính năng"
-about: Đề xuất tính năng cho Aiko-Server, giúp chúng tôi cải thiện hơn
+name: "Feature Request"
+about: Suggest a feature for Aiko-Server to help us improve
 title: ''
 labels: awaiting reply, feature-request
 assignees: ''
 ---
 
-**Mô tả tính năng bạn muốn**
+**Describe the feature you'd like**
 
-Mô tả tính năng một cách rõ ràng và ngắn gọn.
+Describe the feature you'd like in a clear and concise manner.
 
-**Mô tả các phương án thay thế mà bạn đã xem xét**
+**Describe any alternative solutions you've considered**
 
-Bạn có xem xét các phương án thay thế nào để giải quyết vấn đề này không?
+Have you considered any alternative solutions to address this issue?
 
-**Thêm bối cảnh**
+**Additional context**
 
-Thêm bất kỳ bối cảnh hoặc ảnh chụp màn hình nào liên quan đến yêu cầu tính năng ở đây.
+Add any relevant context or screenshots related to the feature request here.
