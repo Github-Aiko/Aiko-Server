@@ -6,17 +6,17 @@ type NodeConfig struct {
 }
 
 type ApiConfig struct {
-	APIHost                  string                    `yaml:"ApiHost"`
-	NodeID                   int                       `yaml:"NodeID"`
-	Key                      string                    `yaml:"ApiKey"`
-	NodeType                 string                    `yaml:"NodeType"`
-	Timeout                  int                       `yaml:"Timeout"`
-	RuleListPath             string                    `yaml:"RuleListPath"`
-	CountryRestriction       bool                      `yaml:"CountryRestriction"`
-	CountryRestrictionConfig *CountryRestrictionConfig `yaml:"CountryRestrictionConfig"`
+	APIHost                  string             `yaml:"ApiHost"`
+	NodeID                   int                `yaml:"NodeID"`
+	Key                      string             `yaml:"ApiKey"`
+	NodeType                 string             `yaml:"NodeType"`
+	Timeout                  int                `yaml:"Timeout"`
+	RuleListPath             string             `yaml:"RuleListPath"`
+	CountryRestriction       bool               `yaml:"CountryRestriction"`
+	CountryRestrictionConfig *RestrictionConfig `yaml:"CountryRestrictionConfig"`
 }
 
-type CountryRestrictionConfig struct {
+type RestrictionConfig struct {
 	List        []string `yaml:"CountryList"`
 	IpOtherList []string `yaml:"IpOtherList"`
 }
