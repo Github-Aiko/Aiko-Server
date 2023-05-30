@@ -23,9 +23,9 @@ Nodes:
       CountryRestriction: false # Enable country restriction ( Now Support Only Linux )
       CountryRestrictionConfig: # Only Country can access this node
         CountryList: # Country list ( Now support : vn , cn, jp )
-          - "CN"
-          - "JP"
-          - "VN"
+          - CN
+          - VN
+          - JP
         IpOtherList: # List Ip you want block input ( Recommend : Ip of your server)
           - 103.123.123.123
     ControllerConfig:
