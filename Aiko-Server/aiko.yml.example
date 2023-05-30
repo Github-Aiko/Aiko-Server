@@ -28,6 +28,10 @@ Nodes:
           - JP
         IpOtherList: # List Ip you want block input ( Recommend : Ip of your server)
           - 103.123.123.123
+        UnlockPort: # List port you want unlock input ( Recommend : 22, 80, 443)
+          - 22
+          - 80
+          - 443
     ControllerConfig:
       ListenIP: 0.0.0.0 # IP address you want to listen
       SendIP: 0.0.0.0 # IP address you want to send pacakage

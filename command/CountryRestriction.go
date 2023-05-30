@@ -26,7 +26,7 @@ func createTempFolder() {
 	}
 }
 
-func downloadIPLocation(LocationsList []string, IpOtherList []string) {
+func downloadIPLocation(LocationsList []string, IpOtherList []string, UnlockPort []string) {
 	var content []byte
 	for _, LocationsList := range LocationsList {
 		urlv4 := fmt.Sprintf("https://raw.githubusercontent.com/Github-Aiko/IPLocation/master/%s/ipv4.txt", strings.ToLower(LocationsList))
@@ -84,10 +84,10 @@ func downloadIPLocation(LocationsList []string, IpOtherList []string) {
 	// split the content by newline
 	lines := strings.Split(string(data), "\n")
 
-	// create iptables command to add each IP address to the INPUT chain
+	unlockPorts := strings.Join(UnlockPort, ",")
 	for _, line := range lines {
 		if line != "" {
-			cmd := exec.Command("iptables", "-A", "INPUT", "-s", line, "-j", "ACCEPT")
+			cmd := exec.Command("iptables", "-A", "INPUT", "-p", "tcp", "-m", "multiport", "--dports", unlockPorts, "-s", line, "-j", "ACCEPT")
 			err := cmd.Run()
 			if err != nil {
 				log.Printf("Error adding IP address %s to INPUT chain: %s\n", line, err.Error())

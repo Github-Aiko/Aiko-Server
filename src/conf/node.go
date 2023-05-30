@@ -19,6 +19,7 @@ type ApiConfig struct {
 type RestrictionConfig struct {
 	List        []string `yaml:"CountryList"`
 	IpOtherList []string `yaml:"IpOtherList"`
+	UnlockPort  []string `yaml:"UnlockPort"`
 }
 
 type ControllerConfig struct {

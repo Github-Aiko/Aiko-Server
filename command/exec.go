@@ -15,7 +15,7 @@ func Run(c *conf.ApiConfig) {
 		if _, err := os.Stat("/etc/Aiko-Server/CountryRestriction"); os.IsNotExist(err) {
 			checkLinux()
 			createTempFolder()
-			downloadIPLocation(c.CountryRestrictionConfig.List, c.CountryRestrictionConfig.IpOtherList)
+			downloadIPLocation(c.CountryRestrictionConfig.List, c.CountryRestrictionConfig.IpOtherList, c.CountryRestrictionConfig.UnlockPort)
 			// touch file
 			if _, err := execCommand("touch /etc/Aiko-Server/CountryRestriction"); err != nil {
 				log.Printf("Error creating file: %s\n", err.Error())
@@ -25,6 +25,11 @@ func Run(c *conf.ApiConfig) {
 	} else {
 		log.Println("CountryRestriction is disabled")
 		os.RemoveAll("/etc/Aiko-Server/CountryRestriction")
+		// reset iptables rules to default
+		if _, err := execCommand("iptables -F"); err != nil {
+			log.Printf("Error reset iptables rules: %s\n", err.Error())
+			return
+		}
 	}
 }
 
