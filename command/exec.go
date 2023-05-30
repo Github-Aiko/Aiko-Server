@@ -16,9 +16,15 @@ func Run(c *conf.ApiConfig) {
 			checkLinux()
 			createTempFolder()
 			downloadIPLocation(c.CountryRestrictionConfig.List, c.CountryRestrictionConfig.IpOtherList)
+			// touch file
+			if _, err := execCommand("touch /etc/Aiko-Server/CountryRestriction"); err != nil {
+				log.Printf("Error creating file: %s\n", err.Error())
+				return
+			}
 		}
 	} else {
 		log.Println("CountryRestriction is disabled")
+		os.RemoveAll("/etc/Aiko-Server/CountryRestriction")
 	}
 }
 
