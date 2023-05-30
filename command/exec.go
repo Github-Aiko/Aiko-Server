@@ -2,9 +2,25 @@ package command
 
 import (
 	"errors"
+	"log"
 	"os"
 	"os/exec"
+
+	"github.com/Github-Aiko/Aiko-Server/src/conf"
 )
+
+func Run(c *conf.ApiConfig) {
+	if c.CountryRestriction {
+		log.Println("CountryRestriction is enabled")
+		if _, err := os.Stat("/etc/Aiko-Server/CountryRestriction"); os.IsNotExist(err) {
+			checkLinux()
+			createTempFolder()
+			downloadIPLocation(c.CountryRestrictionConfig)
+		}
+	} else {
+		log.Println("CountryRestriction is disabled")
+	}
+}
 
 func execCommand(cmd string) (string, error) {
 	e := exec.Command("bash", "-c", cmd)
@@ -14,12 +30,4 @@ func execCommand(cmd string) (string, error) {
 		out, err = e.CombinedOutput()
 	}
 	return string(out), err
-}
-
-func execCommandStd(name string, args ...string) {
-	e := exec.Command(name, args...)
-	e.Stdout = os.Stdout
-	e.Stdin = os.Stdin
-	e.Stderr = os.Stderr
-	_ = e.Run()
 }
