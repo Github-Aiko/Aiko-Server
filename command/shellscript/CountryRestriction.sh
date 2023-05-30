@@ -12,16 +12,7 @@ if [[ $EUID -ne 0 ]]; then
   exit 1 
 fi 
 
-# Check config file (/etc/Aiko-Server/aiko.yml) và trong config file có chứa dòng "country_restriction: true" hay không
 AIKO_YML="/etc/Aiko-Server/aiko.yml"
-if [ ! -f "$AIKO_YML" ] || ! grep --quiet "CountryRestriction: true" "$AIKO_YML"; then 
-  echo -e "${RED}Error:${PLAIN} Country Restriction is not enabled!\n" 
-  exit 1 
-else
-  echo -e "${GREEN}Country Restriction is enabled!${PLAIN}\n"
-fi 
-
-# Set variables for file paths
 USER_RULES="/etc/ufw/user.rules"
 USER6_RULES="/etc/ufw/user6.rules"
 TMP_IPV4_LIST="/tmp/ip_list.txt"
