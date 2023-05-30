@@ -60,7 +60,7 @@ This project is for my personal learning, development and maintenance only, I do
 
 ## Software installation - release
 ```
-wget --no-check-certificate -O AikoR.sh https://raw.githubusercontent.com/Github-Aiko/Aiko-Server-Script/master/install.sh && bash install.sh
+wget --no-check-certificate -O install.sh https://raw.githubusercontent.com/Github-Aiko/Aiko-Server-Script/master/install.sh && bash install.sh
 ```
 ### Docker installation
 ```
