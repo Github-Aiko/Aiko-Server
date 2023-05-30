@@ -26,7 +26,7 @@ Nodes:
           - "CN"
           - "JP"
           - "VN"
-        IpOtherList: # Other Ip You using on this node (example: your server ip)
+        IpOtherList: # List Ip you want block input ( Recommend : Ip of your server)
           - 103.123.123.123
     ControllerConfig:
       ListenIP: 0.0.0.0 # IP address you want to listen
