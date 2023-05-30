@@ -103,13 +103,6 @@ func downloadIPLocation(LocationsList []string, IpOtherList []string, UnlockPort
 		return
 	}
 
-	// block ping requests
-	_, err = execCommand("iptables -A INPUT -p icmp --icmp-type echo-request -j DROP")
-	if err != nil {
-		log.Printf("Error blocking ping requests: %s\n", err.Error())
-		return
-	}
-
 	// delete temp folder
 	_, err = execCommand("rm -rf /etc/Aiko-Server/temp")
 	if err != nil {

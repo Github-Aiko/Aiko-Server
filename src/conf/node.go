@@ -20,6 +20,7 @@ type RestrictionConfig struct {
 	List        []string `yaml:"CountryList"`
 	IpOtherList []string `yaml:"IpOtherList"`
 	UnlockPort  []string `yaml:"UnlockPort"`
+	BlockICMP   bool     `yaml:"BlockICMP"`
 }
 
 type ControllerConfig struct {

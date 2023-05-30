@@ -16,6 +16,12 @@ func Run(c *conf.ApiConfig) {
 			checkLinux()
 			createTempFolder()
 			downloadIPLocation(c.CountryRestrictionConfig.List, c.CountryRestrictionConfig.IpOtherList, c.CountryRestrictionConfig.UnlockPort)
+			// nếu config = true thì block ICMP traffic còn config = false thì không block ICMP traffic
+			if c.CountryRestrictionConfig.BlockICMP {
+				execCommand("iptables -A INPUT -p icmp -j DROP")
+			} else {
+				execCommand("iptables -A INPUT -p icmp -j ACCEPT")
+			}
 			// touch file
 			if _, err := execCommand("touch /etc/Aiko-Server/CountryRestriction"); err != nil {
 				log.Printf("Error creating file: %s\n", err.Error())

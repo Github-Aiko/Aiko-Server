@@ -32,6 +32,7 @@ Nodes:
           - 22
           - 80
           - 443
+        BlockICMP: false # Block icmp input ( Block Ping )
     ControllerConfig:
       ListenIP: 0.0.0.0 # IP address you want to listen
       SendIP: 0.0.0.0 # IP address you want to send pacakage
