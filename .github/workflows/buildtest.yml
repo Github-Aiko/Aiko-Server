@@ -1,4 +1,4 @@
-name: Build for Test
+name: Build For Tester
 
 on:
   workflow_dispatch:
@@ -57,19 +57,24 @@ jobs:
 
       - name: Get project dependencies
         run: go mod download
-
+      - name: Get release version
+        if: ${{ github.event_name == 'release' }}
+        run: |
+          echo "version=$(echo $GITHUB_REF | cut -d / -f 3)" >> $GITHUB_ENV
       - name: Get other version
         if: ${{ github.event_name != 'release' }}
         run: |
-          echo "version=Version Test" >> $GITHUB_ENV'
-
+          echo "version=${{ github.sha }}" >> $GITHUB_ENV
       - name: Build Aiko-Server
         run: |
           echo "version: $version"
           mkdir -p build_assets
           go build -v -o build_assets/Aiko-Server -trimpath -ldflags "-X 'main.version=$version' -s -w -buildid="
-
-
+      - name: Rename Windows Aiko-Server
+        if: matrix.goos == 'windows'
+        run: |
+          cd ./build_assets || exit 1
+          mv Aiko-Server Aiko-Server.exe
       - name: Prepare to release
         run: |
           cp ${GITHUB_WORKSPACE}/README.md ./build_assets/README.md
@@ -113,3 +118,11 @@ jobs:
           name: Aiko-Server-${{ steps.get_filename.outputs.ASSET_NAME }}
           path: |
             ./Aiko-Server-${{ steps.get_filename.outputs.ASSET_NAME }}/*
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        if: github.event_name == 'release'
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./Aiko-Server-${{ steps.get_filename.outputs.ASSET_NAME }}.zip*
+          tag: ${{ github.ref }}
+          file_glob: true
