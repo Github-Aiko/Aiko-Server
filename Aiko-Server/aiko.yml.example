@@ -21,8 +21,8 @@ Nodes:
       Timeout: 30 # Timeout for the api request
       RuleListPath: # /etc/Aiko-Server/rulelist Path to local rulelist file
       CountryRestriction: false # Enable country restriction ( Now Support Only Ubuntu 18.04+ )
-      CountryRestrictionConfig:
-        CountryList: # Country list
+      CountryRestrictionConfig: # Only Country can access this node
+        CountryList: # Country list ( Now support : vn , cn, jp )
           - "CN"
           - "JP"
           - "VN"
