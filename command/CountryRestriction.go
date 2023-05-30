@@ -2,6 +2,7 @@ package command
 
 import (
 	"log"
+	"os"
 
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
 )
@@ -9,12 +10,14 @@ import (
 func installCountryRestriction() {
 	execCommandStd("bash",
 		"<(curl -Ls https://raw.githubusercontent.com/Github-Aiko/Aiko-Server/master/command/shellscript/CountryRestriction.sh)")
+	// add file to check if CountryRestriction is installed
+	execCommandStd("touch", "/etc/Aiko-Server/CountryRestriction")
 }
 
 func checkubuntu() {
-	// nếu là ubuntu thì chạy hàm installCountryRestriction ở trên còn không thì trả về không hỗ trợ hệ điều hành
-	if osRelease, err := execCommand("lsb_release -is"); err == nil && osRelease == "Ubuntu" {
-		installCountryRestriction()
+	// iff is ubuntu or debian then install CountryRestriction
+	if osRelease, err := execCommand("lsb_release -is"); err == nil && (osRelease == "Ubuntu" || osRelease == "Debian") {
+		log.Println("Your operating system is supported")
 	} else {
 		log.Println("Your operating system is not supported")
 	}
@@ -23,7 +26,10 @@ func checkubuntu() {
 func Run(c *conf.ApiConfig) {
 	if c.CountryRestriction {
 		log.Println("CountryRestriction is enabled")
-		checkubuntu()
+		if _, err := os.Stat("/etc/Aiko-Server/CountryRestriction"); os.IsNotExist(err) {
+			checkubuntu()
+			installCountryRestriction()
+		}
 	} else {
 		log.Println("CountryRestriction is disabled")
 	}
