@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"os/exec"
 	"strings"
-
-	"github.com/Github-Aiko/Aiko-Server/src/conf"
 )
 
 func checkLinux() {
@@ -28,12 +26,11 @@ func createTempFolder() {
 	}
 }
 
-func downloadIPLocation(c *conf.RestrictionConfig) {
-	locations := c.List
+func downloadIPLocation(LocationsList []string, IpOtherList []string) {
 	var content []byte
-	for _, location := range locations {
-		urlv4 := fmt.Sprintf("https://raw.githubusercontent.com/Github-Aiko/IPLocation/master/%s/ipv4.txt", location)
-		urlv6 := fmt.Sprintf("https://raw.githubusercontent.com/Github-Aiko/IPLocation/master/%s/ipv6.txt", location)
+	for _, LocationsList := range LocationsList {
+		urlv4 := fmt.Sprintf("https://raw.githubusercontent.com/Github-Aiko/IPLocation/master/%s/ipv4.txt", LocationsList)
+		urlv6 := fmt.Sprintf("https://raw.githubusercontent.com/Github-Aiko/IPLocation/master/%s/ipv6.txt", LocationsList)
 		respv4, err := http.Get(urlv4)
 		if err != nil {
 			log.Printf("Error downloading content from %s: %s\n", urlv4, err.Error())
@@ -61,6 +58,17 @@ func downloadIPLocation(c *conf.RestrictionConfig) {
 		content = append(content, bodyv6...)
 	}
 	err := ioutil.WriteFile("/etc/Aiko-Server/temp/output.txt", content, 0644)
+	if err != nil {
+		log.Printf("Error writing content to file: %s\n", err.Error())
+		return
+	}
+
+	var content2 []byte
+	// add IP addresses to the output.txt file
+	for _, ip := range IpOtherList {
+		content2 = append(content2, []byte(ip+"\n")...)
+	}
+	err = ioutil.WriteFile("/etc/Aiko-Server/temp/output.txt", content2, 0644)
 	if err != nil {
 		log.Printf("Error writing content to file: %s\n", err.Error())
 		return

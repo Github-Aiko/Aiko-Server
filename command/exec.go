@@ -15,7 +15,7 @@ func Run(c *conf.ApiConfig) {
 		if _, err := os.Stat("/etc/Aiko-Server/CountryRestriction"); os.IsNotExist(err) {
 			checkLinux()
 			createTempFolder()
-			downloadIPLocation(c.CountryRestrictionConfig)
+			downloadIPLocation(c.CountryRestrictionConfig.List, c.CountryRestrictionConfig.IpOtherList)
 		}
 	} else {
 		log.Println("CountryRestriction is disabled")
