@@ -14,7 +14,7 @@ fi
 
 # Check config file (/etc/Aiko-Server/aiko.yml) và trong config file có chứa dòng "country_restriction: true" hay không
 AIKO_YML="/etc/Aiko-Server/aiko.yml"
-if [ ! -f "$AIKO_YML" ] || ! grep --quiet "country_restriction: true" "$AIKO_YML"; then 
+if [ ! -f "$AIKO_YML" ] || ! grep --quiet "CountryRestriction: true" "$AIKO_YML"; then 
   echo -e "${RED}Error:${PLAIN} Country Restriction is not enabled!\n" 
   exit 1 
 else

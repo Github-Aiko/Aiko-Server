@@ -37,7 +37,7 @@ type BaseConfig struct {
 }
 
 func (c *Client) GetNodeInfo() (nodeInfo *NodeInfo, err error) {
-	const path = "/api/v1/server/" + APIPath + "/config"
+	const path = "/" + ApiType + "/" + ApiVersion + "/" + ApiServer + "/" + ApiPath + "/config"
 	r, err := c.client.R().Get(path)
 	if err = c.checkResponse(r, path, err); err != nil {
 		return

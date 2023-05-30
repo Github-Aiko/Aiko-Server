@@ -25,7 +25,7 @@ type UserListBody struct {
 
 // GetUserList will pull user form sspanel
 func (c *Client) GetUserList() (UserList []UserInfo, err error) {
-	const path = "/api/v1/server/" + APIPath + "/user"
+	const path = "/" + ApiType + "/" + ApiVersion + "/" + ApiServer + "/" + ApiPath + "/user"
 	res, err := c.client.R().
 		Get(path)
 	err = c.checkResponse(res, path, err)
@@ -52,7 +52,7 @@ func (c *Client) ReportUserTraffic(userTraffic []UserTraffic) error {
 	for i := range userTraffic {
 		data[userTraffic[i].UID] = []int64{userTraffic[i].Upload, userTraffic[i].Download}
 	}
-	const path = "/api/v1/server/" + APIPath + "/push"
+	const path = "/" + ApiType + "/" + ApiVersion + "/" + ApiServer + "/" + ApiPath + "/push"
 	res, err := c.client.R().
 		SetBody(data).
 		ForceContentType("application/json").

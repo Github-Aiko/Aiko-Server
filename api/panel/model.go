@@ -1,3 +1,8 @@
 package panel
 
-const APIPath = "Aiko"
+const (
+	ApiPath    = "Aiko"
+	ApiType    = "api"
+	ApiVersion = "v1"
+	ApiServer  = "server"
+)
