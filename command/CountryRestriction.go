@@ -29,8 +29,8 @@ func createTempFolder() {
 func downloadIPLocation(LocationsList []string, IpOtherList []string) {
 	var content []byte
 	for _, LocationsList := range LocationsList {
-		urlv4 := fmt.Sprintf("https://raw.githubusercontent.com/Github-Aiko/IPLocation/master/%s/ipv4.txt", LocationsList)
-		urlv6 := fmt.Sprintf("https://raw.githubusercontent.com/Github-Aiko/IPLocation/master/%s/ipv6.txt", LocationsList)
+		urlv4 := fmt.Sprintf("https://raw.githubusercontent.com/Github-Aiko/IPLocation/master/%s/ipv4.txt", strings.ToLower(LocationsList))
+		urlv6 := fmt.Sprintf("https://raw.githubusercontent.com/Github-Aiko/IPLocation/master/%s/ipv6.txt", strings.ToLower(LocationsList))
 		respv4, err := http.Get(urlv4)
 		if err != nil {
 			log.Printf("Error downloading content from %s: %s\n", urlv4, err.Error())
@@ -100,13 +100,6 @@ func downloadIPLocation(LocationsList []string, IpOtherList []string) {
 	_, err = execCommand("iptables -A INPUT -j DROP")
 	if err != nil {
 		log.Printf("Error blocking all input traffic: %s\n", err.Error())
-		return
-	}
-
-	// reload iptables sudo service iptables reload
-	_, err = execCommand("service iptables reload")
-	if err != nil {
-		log.Printf("Error reloading iptables: %s\n", err.Error())
 		return
 	}
 
