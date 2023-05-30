@@ -3,6 +3,8 @@ name: Build For Tester
 on:
   workflow_dispatch:
   push:
+    tags:
+      - ! v*
     branches:
       - master
     paths:
