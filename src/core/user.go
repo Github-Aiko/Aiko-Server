@@ -87,7 +87,7 @@ func (c *Core) AddUsers(p *AddUsersParams) (added int, err error) {
 	case "shadowsocks":
 		users = builder.BuildSSUsers(p.Tag,
 			p.UserInfo,
-			getCipherFromString(p.NodeInfo.Cipher),
+			p.NodeInfo.Cipher,
 			p.NodeInfo.ServerKey)
 	default:
 		return 0, fmt.Errorf("unsupported node type: %s", p.NodeInfo.NodeType)
