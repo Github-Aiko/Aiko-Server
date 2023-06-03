@@ -34,6 +34,7 @@ type ControllerConfig struct {
 	DisableUploadTraffic bool             `yaml:"DisableUploadTraffic"`
 	DisableGetRule       bool             `yaml:"DisableGetRule"`
 	EnableProxyProtocol  bool             `yaml:"EnableProxyProtocol"`
+	EnableTFO            bool             `yaml:"EnableTFO"`
 	DisableIVCheck       bool             `yaml:"DisableIVCheck"`
 	DisableSniffing      bool             `yaml:"DisableSniffing"`
 	EnableReality        bool             `yaml:"EnableReality"`
