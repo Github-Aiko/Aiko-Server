@@ -63,9 +63,6 @@ func BuildInbound(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, tag s
 		}
 	} else if *in.StreamSetting.Network == "ws" {
 		in.StreamSetting.WSSettings = &coreConf.WebSocketConfig{
-			Headers: map[string]string{
-				"Host": "dl.kgvn.garenanow.com",
-			},
 			AcceptProxyProtocol: config.EnableProxyProtocol,
 		} //Enable proxy protocol
 	}
