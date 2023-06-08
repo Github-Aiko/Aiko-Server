@@ -198,6 +198,9 @@ func buildTrojan(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, inboun
 		s := []byte("{}")
 		inbound.Settings = (*json.RawMessage)(&s)
 	}
+	if nodeInfo.Network == "" {
+		nodeInfo.Network = "tcp"
+	}
 	t := coreConf.TransportProtocol(nodeInfo.Network)
 	inbound.StreamSetting = &coreConf.StreamConfig{Network: &t}
 	return nil
