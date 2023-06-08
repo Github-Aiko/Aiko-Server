@@ -7,9 +7,10 @@ import (
 	"strconv"
 	"time"
 
+	vCore "github.com/Github-Aiko/Aiko-Server/src/core"
+
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
 	"github.com/Github-Aiko/Aiko-Server/src/common/builder"
-	"github.com/Github-Aiko/Aiko-Server/src/core"
 	"github.com/Github-Aiko/Aiko-Server/src/limiter"
 	"github.com/Github-Aiko/Aiko-Server/src/node/lego"
 	"github.com/xtls/xray-core/common/task"
@@ -91,7 +92,7 @@ func (c *Controller) nodeInfoMonitor() (err error) {
 		c.userList = newUserInfo
 		// Add new Limiter
 		l := limiter.AddLimiter(c.Tag, &c.LimitConfig, newUserInfo)
-		_, err = c.server.AddUsers(&core.AddUsersParams{
+		_, err = c.server.AddUsers(&vCore.AddUsersParams{
 			Tag:    c.Tag,
 			Config: c.ControllerConfig,
 		})
@@ -132,13 +133,13 @@ func (c *Controller) nodeInfoMonitor() (err error) {
 					(deleted)[i].Uuid,
 					(deleted)[i].Id)
 			}
-			err := c.server.RemoveUsers(deletedEmail, c.Tag)
+			err := c.server.DelUsers(deletedEmail, c.Tag)
 			if err != nil {
 				log.Print(err)
 			}
 		}
 		if len(added) > 0 {
-			_, err := c.server.AddUsers(&core.AddUsersParams{
+			_, err := c.server.AddUsers(&vCore.AddUsersParams{
 				Tag:      c.Tag,
 				Config:   c.ControllerConfig,
 				UserInfo: added,

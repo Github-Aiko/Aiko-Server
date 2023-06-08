@@ -5,21 +5,21 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Github-Aiko/Aiko-Server/api/limit"
+	iprecoder "github.com/Github-Aiko/Aiko-Server/api/limit"
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
-	"github.com/Github-Aiko/Aiko-Server/src/core"
+	vCore "github.com/Github-Aiko/Aiko-Server/src/core"
 	"github.com/Github-Aiko/Aiko-Server/src/limiter"
 	"github.com/xtls/xray-core/common/task"
 )
 
 type Controller struct {
-	server                    *core.Core
+	server                    vCore.Core
 	apiClient                 *panel.Client
 	nodeInfo                  *panel.NodeInfo
 	Tag                       string
 	userList                  []panel.UserInfo
-	ipRecorder                limit.IpRecorder
+	ipRecorder                iprecoder.IpRecorder
 	nodeInfoMonitorPeriodic   *task.Periodic
 	userReportPeriodic        *task.Periodic
 	renewCertPeriodic         *task.Periodic
@@ -29,7 +29,7 @@ type Controller struct {
 }
 
 // NewController return a Node controller with default parameters.
-func NewController(server *core.Core, api *panel.Client, config *conf.ControllerConfig) *Controller {
+func NewController(server vCore.Core, api *panel.Client, config *conf.ControllerConfig) *Controller {
 	controller := &Controller{
 		server:           server,
 		ControllerConfig: config,
@@ -69,7 +69,7 @@ func (c *Controller) Start() error {
 	if err != nil {
 		return fmt.Errorf("add new tag failed: %s", err)
 	}
-	added, err := c.server.AddUsers(&core.AddUsersParams{
+	added, err := c.server.AddUsers(&vCore.AddUsersParams{
 		Tag:      c.Tag,
 		Config:   c.ControllerConfig,
 		UserInfo: c.userList,
