@@ -70,7 +70,7 @@ jobs:
         run: |
           echo "version: $version"
           mkdir -p build_assets
-          go build -v -o build_assets/Aiko-Server -trimpath -ldflags "-X 'main.version=$version' -s -w -buildid="
+          go build -v -o build_assets/Aiko-Server -tags "xray hy" -trimpath -ldflags "-X 'github.com/Github-Aiko/Aiko-Server/cmd.version=$version' -s -w -buildid="
 
       - name: Prepare to release
         run: |
