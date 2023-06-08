@@ -56,7 +56,7 @@ This project is for my personal learning, development and maintenance only, I do
 
 | Panel                                                  | v2ray | trojan | shadowsocks     |hysteria        |
 | ------------------------------------------------------ | ----- | ------ | ----------------|----------------|
-|  AikoPanel                                             | √     | √      | √               |√ (Comming soon)|
+|  AikoPanel                                             | √     | √      | √               |√               |
 
 ## Software installation - release
 ```
