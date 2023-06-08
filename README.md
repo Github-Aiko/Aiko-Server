@@ -54,9 +54,9 @@ This project is for my personal learning, development and maintenance only, I do
 | Realtime Limit                                 | √     | √      | √           |
 ## User interface support
 
-| Panel                                                  | v2ray | trojan | shadowsocks                                 |
-| ------------------------------------------------------ | ----- | ------ | ------------------------------------------- |
-|  AikoPanel                                             | √     | √      | √                                           |
+| Panel                                                  | v2ray | trojan | shadowsocks     |hysteria        |
+| ------------------------------------------------------ | ----- | ------ | ----------------|----------------|
+|  AikoPanel                                             | √     | √      | √               |√ (Comming soon)|
 
 ## Software installation - release
 ```
