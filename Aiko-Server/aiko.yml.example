@@ -1,17 +1,20 @@
-Log:
-  Level: warning # Log level: none, error, warning, info, debug 
-  AccessPath: # /etc/Aiko-Server/access.Log
-  ErrorPath: # /etc/Aiko-Server/error.log
-DnsConfigPath: # /etc/Aiko-Server/dns.json # Path to dns config, check https://xtls.github.io/config/dns.html for help
-RouteConfigPath: # /etc/Aiko-Server/route.json # Path to route config, check https://xtls.github.io/config/routing.html for help
-InboundConfigPath: # /etc/Aiko-Server/custom_inbound.json # Path to custom inbound config, check https://xtls.github.io/config/inbound.html for help
-OutboundConfigPath: # /etc/Aiko-Server/custom_outbound.json # Path to custom outbound config, check https://xtls.github.io/config/outbound.html for help
-ConnetionConfig:
-  Handshake: 4 # Handshake time limit, Second
-  ConnIdle: 30 # Connection idle time limit, Second
-  UplinkOnly: 2 # Time limit when the connection downstream is closed, Second
-  DownlinkOnly: 4 # Time limit when the connection is closed after the uplink is closed, Second
-  BufferSize: 64 # The internal cache size of each connection, kB 
+CoreConfig:
+  Type: "xray" # Core type. if you need many cores, use " " to split
+  XrayConfig:
+    Log:
+      Level: warning # Log level: none, error, warning, info, debug
+      AccessPath: # /etc/Aiko-Server/access.Log
+      ErrorPath: # /etc/Aiko-Server/error.log
+    DnsConfigPath: # /etc/Aiko-Server/dns.json # Path to dns config, check https://xtls.github.io/config/dns.html for help
+    RouteConfigPath: # /etc/Aiko-Server/route.json # Path to route config, check https://xtls.github.io/config/routing.html for help
+    InboundConfigPath: # /etc/Aiko-Server/custom_inbound.json # Path to custom inbound config, check https://xtls.github.io/config/inbound.html for help
+    OutboundConfigPath: # /etc/Aiko-Server/custom_outbound.json # Path to custom outbound config, check https://xtls.github.io/config/outbound.html for help
+    ConnectionConfig:
+      Handshake: 4 # Handshake time limit, Second
+      ConnIdle: 30 # Connection idle time limit, Second
+      UplinkOnly: 2 # Time limit when the connection downstream is closed, Second
+      DownlinkOnly: 4 # Time limit when the connection is closed after the uplink is closed, Second
+      BufferSize: 64 # The internal cache size of each connection, kB
 Nodes:
   - ApiConfig:
       ApiHost: "http://127.0.0.1:667"
@@ -20,49 +23,27 @@ Nodes:
       NodeType: V2ray # Node type: V2ray, Shadowsocks, Trojan
       Timeout: 30 # Timeout for the api request
       RuleListPath: # /etc/Aiko-Server/rulelist Path to local rulelist file
-      CountryRestriction: false # Enable country restriction ( Now Support Only Linux )
-      CountryRestrictionConfig: # Only Country can access this node
-        CountryList: # Country list ( Now support : VietNam , China, Japan )
-          - VietNam
-          - China
-          - Japan
-        IpOtherList: # List Ip you want block input ( Recommend : Ip of your server)
-          - 103.123.123.123
-        UnlockPort: # List port you want unlock input ( Recommend : 22, 80, 443)
-          - 22
-          - 80
-          - 443
-        BlockICMP: false # Block icmp input ( Block Ping )
     ControllerConfig:
       ListenIP: 0.0.0.0 # IP address you want to listen
       SendIP: 0.0.0.0 # IP address you want to send pacakage
-      EnableDNS: false # Use custom DNS config, Please ensure that you set the dns.json well
-      EnableTFO: false # Enable TCP Fast Open
-      DNSType: AsIs # AsIs, UseIP, UseIPv4, UseIPv6, DNS strategy
-      EnableVless: false # Enable Vless for V2ray Type
-      EnableProxyProtocol: false # Only works for WebSocket and TCP
-      EnableXtls: false  # Enable xtls-rprx-vision, only vless
-      EnableReality: false # Enable reality
-      RealityConfig: # This config like RealityObject for xray-core, please check https://xtls.github.io/config/transport.html#realityobject
-        Dest: 80 # Same fallback dest
-        Xver: 0 # Same fallback xver
-        ServerNames:
-          - "example.com"
-          - "www.example.com"
-        PrivateKey: "" # Private key for server
-        MinClientVer: "" # Min client version
-        MaxClientVer: "" # Max client version
-        MaxTimeDiff: 0 # Max time difference, ms
-        ShortIds: # Short ids
-          - ""
-          - "0123456789abcdef"
-      EnableFallback: false # Only support for Trojan and Vless
-      FallBackConfigs: # Support multiple fallbacks
-        - SNI: # TLS SNI(Server Name Indication), Empty for any
-          Alpn: # Alpn, Empty for any
-          Path: # HTTP PATH, Empty for any
-          Dest: 80 # Required, Destination of fallback, check https://xtls.github.io/config/features/fallback.html for details.
-          ProxyProtocolVer: 0 # Send PROXY protocol version, 0 for dsable
+      XrayOptions:
+        EnableDNS: false # Use custom DNS config, Please ensure that you set the dns.json well
+        DNSType: AsIs # AsIs, UseIP, UseIPv4, UseIPv6, DNS strategy
+        EnableTFO: false # Enable TCP Fast Open
+        EnableVless: false # Enable Vless for V2ray Type
+        EnableXtls: false  # Enable xtls-rprx-vision, only vless
+        EnableProxyProtocol: false # Only works for WebSocket and TCP
+        EnableFallback: false # Only support for Trojan and Vless
+        FallBackConfigs: # Support multiple fallbacks
+          - SNI: # TLS SNI(Server Name Indication), Empty for any
+            Alpn: # Alpn, Empty for any
+            Path: # HTTP PATH, Empty for any
+            Dest: 80 # Required, Destination of fallback, check https://xtls.github.io/config/features/fallback.html for details.
+            ProxyProtocolVer: 0 # Send PROXY protocol version, 0 for dsable
+      HyOptions:
+        Resolver: "udp://1.1.1.1:53" # DNS resolver address
+        ResolvePreference: 64 # DNS IPv4/IPv6 preference. Available options: "64" (IPv6 first, fallback to IPv4), "46" (IPv4 first, fallback to IPv6), "6" (IPv6 only), "4" (IPv4 only)
+        SendDevice: "eth0" # Bind device for outbound connections (usually requires root)
       LimitConfig:
         EnableRealtime: false # Check device limit on real time
         SpeedLimit: 0 # Mbps, Local settings will replace remote settings, 0 means disable
@@ -89,7 +70,7 @@ Nodes:
           SpeedLimit: 0 # Speed limit, Mbps
           ExpireTime: 0 # Time limit, sec.
       CertConfig:
-        CertMode: dns # Option about how to get certificate: none, file, http, dns. Choose "none" will forcedly disable the tls config.
+        CertMode: dns # Option about how to get certificate: none, file, http, dns, reality. Choose "none" will forcedly disable the tls config.
         CertDomain: "node1.test.com" # Domain to cert
         CertFile: /etc/Aiko-Server/cert/node1.test.com.cert # Provided if the CertMode is file
         KeyFile: /etc/Aiko-Server/cert/node1.test.com.key
@@ -98,6 +79,19 @@ Nodes:
         DNSEnv: # DNS ENV option used by DNS provider
           ALICLOUD_ACCESS_KEY: aaa
           ALICLOUD_SECRET_KEY: bbb
+        RealityConfig: # This config like RealityObject for xray-core, please check https://xtls.github.io/config/transport.html#realityobject
+          Dest: 80 # Same fallback dest
+          Xver: 0 # Same fallback xver
+          ServerNames:
+            - "example.com"
+            - "www.example.com"
+          PrivateKey: "" # Private key for server
+          MinClientVer: "" # Min client version
+          MaxClientVer: "" # Max client version
+          MaxTimeDiff: 0 # Max time difference, ms
+          ShortIds: # Short ids
+            - ""
+            - "0123456789abcdef"
   # -
   #   ApiConfig:
   #     ApiHost: "http://127.0.0.1:668"
@@ -122,4 +116,3 @@ Nodes:
   #       DNSEnv: # DNS ENV option used by DNS provider
   #         ALICLOUD_ACCESS_KEY: aaa
   #         ALICLOUD_SECRET_KEY: bbb
-

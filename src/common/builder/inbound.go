@@ -4,12 +4,11 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
 	"fmt"
 
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
-	"github.com/Github-Aiko/Aiko-Server/src/common/file"
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
-	"github.com/Github-Aiko/Aiko-Server/src/node/lego"
 	"github.com/goccy/go-json"
 	"github.com/xtls/xray-core/common/net"
 	"github.com/xtls/xray-core/core"
@@ -23,22 +22,22 @@ func BuildInbound(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, tag s
 	t := coreConf.TransportProtocol(nodeInfo.Network)
 	in.StreamSetting = &coreConf.StreamConfig{Network: &t}
 	var err error
-	switch nodeInfo.NodeType {
+	switch nodeInfo.Type {
 	case "v2ray":
 		err = buildV2ray(config, nodeInfo, in)
 	case "trojan":
-		err = buildTrojan(config, nodeInfo, in)
+		err = buildTrojan(config, in)
 	case "shadowsocks":
 		err = buildShadowsocks(config, nodeInfo, in)
 	default:
-		return nil, fmt.Errorf("unsupported node type: %s, Only support: V2ray, Trojan, Shadowsocks", nodeInfo.NodeType)
+		return nil, fmt.Errorf("unsupported node type: %s, Only support: V2ray, Trojan, Shadowsocks", nodeInfo.Type)
 	}
 	if err != nil {
 		return nil, err
 	}
 	// Set server port
 	in.PortList = &coreConf.PortList{
-		Range: []coreConf.PortRange{{From: uint32(nodeInfo.ServerPort), To: uint32(nodeInfo.ServerPort)}},
+		Range: []coreConf.PortRange{{From: uint32(nodeInfo.Port), To: uint32(nodeInfo.Port)}},
 	}
 	// Set Listen IP address
 	ipAddress := net.ParseAddress(config.ListenIP)
@@ -48,7 +47,7 @@ func BuildInbound(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, tag s
 		Enabled:      true,
 		DestOverride: &coreConf.StringList{"http", "tls"},
 	}
-	if config.DisableSniffing {
+	if config.XrayOptions.DisableSniffing {
 		sniffingConfig.Enabled = false
 	}
 	in.SniffingConfig = sniffingConfig
@@ -63,44 +62,43 @@ func BuildInbound(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, tag s
 		}
 	} else if *in.StreamSetting.Network == "ws" {
 		in.StreamSetting.WSSettings = &coreConf.WebSocketConfig{
-			AcceptProxyProtocol: config.EnableProxyProtocol,
-		} //Enable proxy protocol
+			AcceptProxyProtocol: config.EnableProxyProtocol} //Enable proxy protocol
 	}
-	// Set TLS and XTLS settings
-	if nodeInfo.Tls != 0 {
-		if config.CertConfig.CertMode != "none" {
-			// Normal tls
-			in.StreamSetting.Security = "tls"
-			certFile, keyFile, err := getCertFile(config.CertConfig)
-			if err != nil {
-				return nil, err
-			}
-			in.StreamSetting.TLSSettings = &coreConf.TLSConfig{
-				Certs: []*coreConf.TLSCertConfig{
-					{
-						CertFile:     certFile,
-						KeyFile:      keyFile,
-						OcspStapling: 3600,
-					},
-				},
-				RejectUnknownSNI: config.CertConfig.RejectUnknownSni,
-			}
-		} else if config.EnableReality {
+	// Set TLS or Reality settings
+	if nodeInfo.Tls {
+		if config.CertConfig == nil {
+			return nil, errors.New("the CertConfig is not vail")
+		}
+		switch config.CertConfig.CertMode {
+		case "none", "": // disable
+		case "reality":
 			// Reality
 			in.StreamSetting.Security = "reality"
-			d, err := json.Marshal(config.RealityConfig.Dest)
+			d, err := json.Marshal(config.CertConfig.RealityConfig.Dest)
 			if err != nil {
 				return nil, fmt.Errorf("marshal reality dest error: %s", err)
 			}
 			in.StreamSetting.REALITYSettings = &coreConf.REALITYConfig{
 				Dest:         d,
-				Xver:         config.RealityConfig.Xver,
-				ServerNames:  config.RealityConfig.ServerNames,
-				PrivateKey:   config.RealityConfig.PrivateKey,
-				MinClientVer: config.RealityConfig.MinClientVer,
-				MaxClientVer: config.RealityConfig.MaxClientVer,
-				MaxTimeDiff:  config.RealityConfig.MaxTimeDiff,
-				ShortIds:     config.RealityConfig.ShortIds,
+				Xver:         config.CertConfig.RealityConfig.Xver,
+				ServerNames:  config.CertConfig.RealityConfig.ServerNames,
+				PrivateKey:   config.CertConfig.RealityConfig.PrivateKey,
+				MinClientVer: config.CertConfig.RealityConfig.MinClientVer,
+				MaxClientVer: config.CertConfig.RealityConfig.MaxClientVer,
+				MaxTimeDiff:  config.CertConfig.RealityConfig.MaxTimeDiff,
+				ShortIds:     config.CertConfig.RealityConfig.ShortIds,
+			}
+		default:
+			// Normal tls
+			in.StreamSetting.TLSSettings = &coreConf.TLSConfig{
+				Certs: []*coreConf.TLSCertConfig{
+					{
+						CertFile:     config.CertConfig.CertFile,
+						KeyFile:      config.CertConfig.KeyFile,
+						OcspStapling: 3600,
+					},
+				},
+				RejectUnknownSNI: config.CertConfig.RejectUnknownSni,
 			}
 		}
 	}
@@ -108,23 +106,23 @@ func BuildInbound(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, tag s
 	if *in.StreamSetting.Network != "tcp" &&
 		*in.StreamSetting.Network != "ws" &&
 		config.EnableProxyProtocol {
-		sockoptConfig := &coreConf.SocketConfig{
+		socketConfig := &coreConf.SocketConfig{
 			AcceptProxyProtocol: config.EnableProxyProtocol,
-			TFO:                 config.EnableTFO,
+			TFO:                 config.XrayOptions.EnableTFO,
 		} //Enable proxy protocol
-		in.StreamSetting.SocketSettings = sockoptConfig
+		in.StreamSetting.SocketSettings = socketConfig
 	}
 	in.Tag = tag
 	return in.Build()
 }
 
 func buildV2ray(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, inbound *coreConf.InboundDetourConfig) error {
-	if config.EnableVless {
+	if config.XrayOptions.EnableVless {
 		//Set vless
 		inbound.Protocol = "vless"
-		if config.EnableFallback {
+		if config.XrayOptions.EnableFallback {
 			// Set fallback
-			fallbackConfigs, err := buildVlessFallbacks(config.FallBackConfigs)
+			fallbackConfigs, err := buildVlessFallbacks(config.XrayOptions.FallBackConfigs)
 			if err != nil {
 				return err
 			}
@@ -179,11 +177,11 @@ func buildV2ray(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, inbound
 	return nil
 }
 
-func buildTrojan(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, inbound *coreConf.InboundDetourConfig) error {
+func buildTrojan(config *conf.ControllerConfig, inbound *coreConf.InboundDetourConfig) error {
 	inbound.Protocol = "trojan"
-	if config.EnableFallback {
+	if config.XrayOptions.EnableFallback {
 		// Set fallback
-		fallbackConfigs, err := buildTrojanFallbacks(config.FallBackConfigs)
+		fallbackConfigs, err := buildTrojanFallbacks(config.XrayOptions.FallBackConfigs)
 		if err != nil {
 			return err
 		}
@@ -198,10 +196,7 @@ func buildTrojan(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, inboun
 		s := []byte("{}")
 		inbound.Settings = (*json.RawMessage)(&s)
 	}
-	if nodeInfo.Network == "" {
-		nodeInfo.Network = "tcp"
-	}
-	t := coreConf.TransportProtocol(nodeInfo.Network)
+	t := coreConf.TransportProtocol("tcp")
 	inbound.StreamSetting = &coreConf.StreamConfig{Network: &t}
 	return nil
 }
@@ -230,7 +225,7 @@ func buildShadowsocks(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, i
 	settings.Users = append(settings.Users, defaultSSuser)
 	settings.NetworkList = &coreConf.NetworkList{"tcp", "udp"}
 	settings.IVCheck = true
-	if config.DisableIVCheck {
+	if config.XrayOptions.DisableIVCheck {
 		settings.IVCheck = false
 	}
 	t := coreConf.TransportProtocol("tcp")
@@ -241,30 +236,6 @@ func buildShadowsocks(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, i
 		return fmt.Errorf("marshal shadowsocks settings error: %s", err)
 	}
 	return nil
-}
-
-func getCertFile(certConfig *conf.CertConfig) (certFile string, keyFile string, err error) {
-	if certConfig.CertFile == "" || certConfig.KeyFile == "" {
-		return "", "", fmt.Errorf("cert file path or key file path not exist")
-	}
-	switch certConfig.CertMode {
-	case "file":
-		return certConfig.CertFile, certConfig.KeyFile, nil
-	case "dns", "http":
-		if file.IsExist(certConfig.CertFile) && file.IsExist(certConfig.KeyFile) {
-			return certConfig.CertFile, certConfig.KeyFile, nil
-		}
-		l, err := lego.New(certConfig)
-		if err != nil {
-			return "", "", fmt.Errorf("create lego object error: %s", err)
-		}
-		err = l.CreateCert()
-		if err != nil {
-			return "", "", fmt.Errorf("create cert error: %s", err)
-		}
-		return certConfig.CertFile, certConfig.KeyFile, nil
-	}
-	return "", "", fmt.Errorf("unsupported certmode: %s", certConfig.CertMode)
 }
 
 func buildVlessFallbacks(fallbackConfigs []conf.FallBackConfig) ([]*coreConf.VLessInboundFallback, error) {

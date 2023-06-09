@@ -6,42 +6,43 @@ type NodeConfig struct {
 }
 
 type ApiConfig struct {
-	APIHost                  string             `yaml:"ApiHost"`
-	NodeID                   int                `yaml:"NodeID"`
-	Key                      string             `yaml:"ApiKey"`
-	NodeType                 string             `yaml:"NodeType"`
-	Timeout                  int                `yaml:"Timeout"`
-	RuleListPath             string             `yaml:"RuleListPath"`
-	CountryRestriction       bool               `yaml:"CountryRestriction"`
-	CountryRestrictionConfig *RestrictionConfig `yaml:"CountryRestrictionConfig"`
-}
-
-type RestrictionConfig struct {
-	List        []string `yaml:"CountryList"`
-	IpOtherList []string `yaml:"IpOtherList"`
-	UnlockPort  []string `yaml:"UnlockPort"`
-	BlockICMP   bool     `yaml:"BlockICMP"`
+	APIHost      string `yaml:"ApiHost"`
+	NodeID       int    `yaml:"NodeID"`
+	Key          string `yaml:"ApiKey"`
+	NodeType     string `yaml:"NodeType"`
+	Timeout      int    `yaml:"Timeout"`
+	RuleListPath string `yaml:"RuleListPath"`
 }
 
 type ControllerConfig struct {
-	ListenIP             string           `yaml:"ListenIP"`
-	SendIP               string           `yaml:"SendIP"`
-	EnableDNS            bool             `yaml:"EnableDNS"`
-	DNSType              string           `yaml:"DNSType"`
-	EnableVless          bool             `yaml:"EnableVless"`
-	EnableXtls           bool             `json:"EnableXtls"`
-	LimitConfig          LimitConfig      `yaml:"LimitConfig"`
-	DisableUploadTraffic bool             `yaml:"DisableUploadTraffic"`
-	DisableGetRule       bool             `yaml:"DisableGetRule"`
-	EnableProxyProtocol  bool             `yaml:"EnableProxyProtocol"`
-	EnableTFO            bool             `yaml:"EnableTFO"`
-	DisableIVCheck       bool             `yaml:"DisableIVCheck"`
-	DisableSniffing      bool             `yaml:"DisableSniffing"`
-	EnableReality        bool             `yaml:"EnableReality"`
-	RealityConfig        RealityConfig    `yaml:"RealityConfig"`
-	EnableFallback       bool             `yaml:"EnableFallback"`
-	FallBackConfigs      []FallBackConfig `yaml:"FallBackConfigs"`
-	CertConfig           *CertConfig      `yaml:"CertConfig"`
+	DisableUploadTraffic bool        `yaml:"DisableUploadTraffic"`
+	DisableGetRule       bool        `yaml:"DisableGetRule"`
+	ListenIP             string      `yaml:"ListenIP"`
+	SendIP               string      `yaml:"SendIP"`
+	EnableProxyProtocol  bool        `yaml:"EnableProxyProtocol"`
+	XrayOptions          XrayOptions `yaml:"XrayOptions"`
+	HyOptions            HyOptions   `yaml:"HyOptions"`
+	LimitConfig          LimitConfig `yaml:"LimitConfig"`
+	CertConfig           *CertConfig `yaml:"CertConfig"`
+}
+
+type XrayOptions struct {
+	EnableDNS       bool             `yaml:"EnableDNS"`
+	DNSType         string           `yaml:"DNSType"`
+	EnableVless     bool             `yaml:"EnableVless"`
+	EnableXtls      bool             `yaml:"EnableXtls"`
+	EnableUot       bool             `yaml:"EnableUot"`
+	EnableTFO       bool             `yaml:"EnableTFO"`
+	DisableIVCheck  bool             `yaml:"DisableIVCheck"`
+	DisableSniffing bool             `yaml:"DisableSniffing"`
+	EnableFallback  bool             `yaml:"EnableFallback"`
+	FallBackConfigs []FallBackConfig `yaml:"FallBackConfigs"`
+}
+
+type HyOptions struct {
+	Resolver          string `yaml:"Resolver"`
+	ResolvePreference string `yaml:"ResolvePreference"`
+	SendDevice        string `yaml:"SendDevice"`
 }
 
 type LimitConfig struct {
@@ -100,6 +101,7 @@ type CertConfig struct {
 	Provider         string            `yaml:"Provider"` // alidns, cloudflare, gandi, godaddy....
 	Email            string            `yaml:"Email"`
 	DNSEnv           map[string]string `yaml:"DNSEnv"`
+	RealityConfig    *RealityConfig    `yaml:"RealityConfig"`
 }
 
 type RealityConfig struct {

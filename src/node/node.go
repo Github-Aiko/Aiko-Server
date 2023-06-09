@@ -1,9 +1,11 @@
 package node
 
 import (
+	"fmt"
+
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
-	"github.com/Github-Aiko/Aiko-Server/src/core"
+	vCore "github.com/Github-Aiko/Aiko-Server/src/core"
 )
 
 type Node struct {
@@ -14,7 +16,7 @@ func New() *Node {
 	return &Node{}
 }
 
-func (n *Node) Start(nodes []*conf.NodeConfig, core *core.Core) error {
+func (n *Node) Start(nodes []*conf.NodeConfig, core vCore.Core) error {
 	n.controllers = make([]*Controller, len(nodes))
 	for i, c := range nodes {
 		p, err := panel.New(c.ApiConfig)
@@ -25,7 +27,11 @@ func (n *Node) Start(nodes []*conf.NodeConfig, core *core.Core) error {
 		n.controllers[i] = NewController(core, p, c.ControllerConfig)
 		err = n.controllers[i].Start()
 		if err != nil {
-			return err
+			return fmt.Errorf("start node controller [%s-%s-%d] error: %s",
+				c.ApiConfig.NodeType,
+				c.ApiConfig.APIHost,
+				c.ApiConfig.NodeID,
+				err)
 		}
 	}
 	return nil

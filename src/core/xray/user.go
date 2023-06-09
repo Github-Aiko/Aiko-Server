@@ -1,16 +1,13 @@
-package core
+package xray
 
 import (
 	"context"
 	"fmt"
-	"strings"
 
-	"github.com/Github-Aiko/Aiko-Server/api/panel"
 	"github.com/Github-Aiko/Aiko-Server/src/common/builder"
-	"github.com/Github-Aiko/Aiko-Server/src/conf"
+	vCore "github.com/Github-Aiko/Aiko-Server/src/core"
 	"github.com/xtls/xray-core/common/protocol"
 	"github.com/xtls/xray-core/proxy"
-	"github.com/xtls/xray-core/proxy/shadowsocks"
 )
 
 func (c *Core) GetUserManager(tag string) (proxy.UserManager, error) {
@@ -29,7 +26,7 @@ func (c *Core) GetUserManager(tag string) (proxy.UserManager, error) {
 	return userManager, nil
 }
 
-func (c *Core) RemoveUsers(users []string, tag string) error {
+func (c *Core) DelUsers(users []string, tag string) error {
 	userManager, err := c.GetUserManager(tag)
 	if err != nil {
 		return fmt.Errorf("get user manager error: %s", err)
@@ -43,9 +40,9 @@ func (c *Core) RemoveUsers(users []string, tag string) error {
 	return nil
 }
 
-func (c *Core) GetUserTraffic(email string, reset bool) (up int64, down int64) {
-	upName := "user>>>" + email + ">>>traffic>>>uplink"
-	downName := "user>>>" + email + ">>>traffic>>>downlink"
+func (c *Core) GetUserTraffic(tag, uuid string, reset bool) (up int64, down int64) {
+	upName := "user>>>" + builder.BuildUserTag(tag, uuid) + ">>>traffic>>>uplink"
+	downName := "user>>>" + builder.BuildUserTag(tag, uuid) + ">>>traffic>>>downlink"
 	upCounter := c.shm.GetCounter(upName)
 	downCounter := c.shm.GetCounter(downName)
 	if reset {
@@ -66,19 +63,12 @@ func (c *Core) GetUserTraffic(email string, reset bool) (up int64, down int64) {
 	return up, down
 }
 
-type AddUsersParams struct {
-	Tag      string
-	Config   *conf.ControllerConfig
-	UserInfo []panel.UserInfo
-	NodeInfo *panel.NodeInfo
-}
-
-func (c *Core) AddUsers(p *AddUsersParams) (added int, err error) {
+func (c *Core) AddUsers(p *vCore.AddUsersParams) (added int, err error) {
 	users := make([]*protocol.User, 0, len(p.UserInfo))
-	switch p.NodeInfo.NodeType {
+	switch p.NodeInfo.Type {
 	case "v2ray":
-		if p.Config.EnableVless {
-			users = builder.BuildVlessUsers(p.Tag, p.UserInfo, p.Config.EnableXtls)
+		if p.Config.XrayOptions.EnableXtls {
+			users = builder.BuildVlessUsers(p.Tag, p.UserInfo, true)
 		} else {
 			users = builder.BuildVmessUsers(p.Tag, p.UserInfo)
 		}
@@ -90,7 +80,7 @@ func (c *Core) AddUsers(p *AddUsersParams) (added int, err error) {
 			p.NodeInfo.Cipher,
 			p.NodeInfo.ServerKey)
 	default:
-		return 0, fmt.Errorf("unsupported node type: %s", p.NodeInfo.NodeType)
+		return 0, fmt.Errorf("unsupported node type: %s", p.NodeInfo.Type)
 	}
 	man, err := c.GetUserManager(p.Tag)
 	if err != nil {
@@ -107,19 +97,4 @@ func (c *Core) AddUsers(p *AddUsersParams) (added int, err error) {
 		}
 	}
 	return len(users), nil
-}
-
-func getCipherFromString(c string) shadowsocks.CipherType {
-	switch strings.ToLower(c) {
-	case "aes-128-gcm", "aead_aes_128_gcm":
-		return shadowsocks.CipherType_AES_128_GCM
-	case "aes-256-gcm", "aead_aes_256_gcm":
-		return shadowsocks.CipherType_AES_256_GCM
-	case "chacha20-poly1305", "aead_chacha20_poly1305", "chacha20-ietf-poly1305":
-		return shadowsocks.CipherType_CHACHA20_POLY1305
-	case "none", "plain":
-		return shadowsocks.CipherType_NONE
-	default:
-		return shadowsocks.CipherType_UNKNOWN
-	}
 }

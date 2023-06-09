@@ -37,26 +37,24 @@ This project is for my personal learning, development and maintenance only, I do
 
 ## Featured
 
-| Featured                                       | v2ray | trojan | shadowsocks |
-| -------------------------------------------    | ----- | ------ | ----------- |
-| Get button info                                | √     | √      | √           |
-| Get user information                           | √     | √      | √           |
-| User traffic statistics                        | √     | √      | √           |
-| Report server information                      | √     | √      | √           |
-| Automatic registration of TLS certificates     | √     | √      | √           |
-| auto-renew tls certificate                     | √     | √      | √           |
-| Number of people online                        | √     | √      | √           |
-| Online User Restrictions                       | √     | √      | √           |
-| Audit rules                                    | √     | √      | √           |
-| Node port speed limit                          | √     | √      | √           |
-| User speed limit                               | √     | √      | √           |
-| Custom DNS                                     | √     | √      | √           |
-| Realtime Limit                                 | √     | √      | √           |
+| Feature         | v2ray | trojan | shadowsocks | hysteria |
+|-----------------|-------|--------|-------------|----------|
+| Automatically apply tls certificates | √     | √      | √           | √        |
+| Automatically renew tls certificates | √     | √      | √           | √        |
+| Online user statistics | √     | √      | √           | √        |
+| Audit rules      | √     | √      | √           |          |
+| Custom DNS    | √     | √      | √           | √        |
+| Limit online IP numbers   | √     | √      | √           |          |
+| Connection limit     | √     | √      | √           |          |
+| Cross-node IP number limit  | √     | √      | √           |          |
+| Limit speed according to users    | √     | √      | √           |          |
+| Dynamic speed limit (untested) | √     | √      | √           |          |
+
 ## User interface support
 
-| Panel                                                  | v2ray | trojan | shadowsocks                                 |
-| ------------------------------------------------------ | ----- | ------ | ------------------------------------------- |
-|  AikoPanel                                             | √     | √      | √                                           |
+| Panel                                                  | v2ray | trojan | shadowsocks     |hysteria        |
+| ------------------------------------------------------ | ----- | ------ | ----------------|----------------|
+|  AikoPanel                                             | √     | √      | √               |√               |
 
 ## Software installation - release
 ```

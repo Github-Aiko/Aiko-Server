@@ -1,4 +1,4 @@
-package core
+package xray
 
 import (
 	"context"
@@ -21,11 +21,11 @@ func (c *Core) AddNode(tag string, info *panel.NodeInfo, config *conf.Controller
 	if err != nil {
 		return fmt.Errorf("add inbound error: %s", err)
 	}
-	outBoundConfig, err := builder.BuildOutbound(config, info, tag)
+	outBoundConfig, err := builder.BuildOutbound(config, tag)
 	if err != nil {
 		return fmt.Errorf("build outbound error: %s", err)
 	}
-	err = c.AddOutbound(outBoundConfig)
+	err = c.addOutbound(outBoundConfig)
 	if err != nil {
 		return fmt.Errorf("add outbound error: %s", err)
 	}
@@ -47,7 +47,7 @@ func (c *Core) addInbound(config *core.InboundHandlerConfig) error {
 	return nil
 }
 
-func (c *Core) AddOutbound(config *core.OutboundHandlerConfig) error {
+func (c *Core) addOutbound(config *core.OutboundHandlerConfig) error {
 	rawHandler, err := core.CreateObject(c.Server, config)
 	if err != nil {
 		return err
@@ -67,7 +67,7 @@ func (c *Core) DelNode(tag string) error {
 	if err != nil {
 		return fmt.Errorf("remove in error: %s", err)
 	}
-	err = c.RemoveOutbound(tag)
+	err = c.removeOutbound(tag)
 	if err != nil {
 		return fmt.Errorf("remove out error: %s", err)
 	}
@@ -78,7 +78,7 @@ func (c *Core) removeInbound(tag string) error {
 	return c.ihm.RemoveHandler(context.Background(), tag)
 }
 
-func (c *Core) RemoveOutbound(tag string) error {
+func (c *Core) removeOutbound(tag string) error {
 	err := c.ohm.RemoveHandler(context.Background(), tag)
 	return err
 }

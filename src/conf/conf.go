@@ -2,46 +2,57 @@ package conf
 
 import (
 	"fmt"
-	"github.com/fsnotify/fsnotify"
-	"gopkg.in/yaml.v3"
+	"io"
 	"log"
 	"os"
 	"path"
+	"time"
+
+	"github.com/fsnotify/fsnotify"
+	"gopkg.in/yaml.v3"
 )
 
 type Conf struct {
-	LogConfig          *LogConfig        `yaml:"Log"`
-	DnsConfigPath      string            `yaml:"DnsConfigPath"`
-	InboundConfigPath  string            `yaml:"InboundConfigPath"`
-	OutboundConfigPath string            `yaml:"OutboundConfigPath"`
-	RouteConfigPath    string            `yaml:"RouteConfigPath"`
-	ConnectionConfig   *ConnectionConfig `yaml:"ConnectionConfig"`
-	NodesConfig        []*NodeConfig     `yaml:"Nodes"`
+	CoreConfig  CoreConfig    `yaml:"CoreConfig"`
+	NodesConfig []*NodeConfig `yaml:"Nodes"`
 }
 
 func New() *Conf {
 	return &Conf{
-		LogConfig:          NewLogConfig(),
-		DnsConfigPath:      "",
-		InboundConfigPath:  "",
-		OutboundConfigPath: "",
-		RouteConfigPath:    "",
-		ConnectionConfig:   NewConnectionConfig(),
-		NodesConfig:        []*NodeConfig{},
+		CoreConfig: CoreConfig{
+			Type: "xray",
+			XrayConfig: &XrayConfig{
+				LogConfig:          NewLogConfig(),
+				AssetPath:          "/etc/Aiko-Server/",
+				DnsConfigPath:      "",
+				InboundConfigPath:  "",
+				OutboundConfigPath: "",
+				RouteConfigPath:    "",
+				ConnectionConfig:   NewConnectionConfig(),
+			},
+		},
+		NodesConfig: []*NodeConfig{},
 	}
 }
 
 func (p *Conf) LoadFromPath(filePath string) error {
-	confPath := path.Dir(filePath)
-	os.Setenv("XRAY_LOCATION_ASSET", confPath)
-	os.Setenv("XRAY_LOCATION_CONFIG", confPath)
 	f, err := os.Open(filePath)
 	if err != nil {
 		return fmt.Errorf("open config file error: %s", err)
 	}
-	err = yaml.NewDecoder(f).Decode(p)
+	defer f.Close()
+	content, err := io.ReadAll(f)
+	if err != nil {
+		return fmt.Errorf("read file error: %s", err)
+	}
+	err = yaml.Unmarshal(content, p)
 	if err != nil {
 		return fmt.Errorf("decode config error: %s", err)
+	}
+	old := &OldConfig{}
+	err = yaml.Unmarshal(content, old)
+	if err == nil {
+		migrateOldConfig(p, old)
 	}
 	return nil
 }
@@ -52,10 +63,19 @@ func (p *Conf) Watch(filePath string, reload func()) error {
 		return fmt.Errorf("new watcher error: %s", err)
 	}
 	go func() {
+		var pre time.Time
 		defer watcher.Close()
 		for {
 			select {
-			case <-watcher.Events:
+			case e := <-watcher.Events:
+				if e.Has(fsnotify.Chmod) {
+					continue
+				}
+				if pre.Add(1 * time.Second).After(time.Now()) {
+					continue
+				}
+				time.Sleep(2 * time.Second)
+				pre = time.Now()
 				log.Println("config dir changed, reloading...")
 				*p = *New()
 				err := p.LoadFromPath(filePath)

@@ -21,7 +21,7 @@ Steps to reproduce the behavior.
  - Deployment method [e.g. one command]
 
 **Logs and error**
-Please use `xrayr log` to view and add logs and errors to help explain your issue.
+Please use `aiko-server log` to view and add logs and errors to help explain your issue.
 
 **Additional context**
 Add any other context about the problem here.
