@@ -2,7 +2,6 @@ package hy
 
 import (
 	"crypto/tls"
-	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -34,7 +33,7 @@ var serverPacketConnFuncFactoryMap = map[string]pktconns.ServerPacketConnFuncFac
 
 type Server struct {
 	tag     string
-	counter UserTrafficCounter
+	counter *UserTrafficCounter
 	users   sync.Map
 	running atomic.Bool
 	*cs.Server
@@ -47,9 +46,9 @@ func NewServer(tag string) *Server {
 }
 
 func (s *Server) runServer(node *panel.NodeInfo, c *conf.ControllerConfig) error {
-	if c.HyOptions == nil {
+	/*if c.HyOptions == nil {
 		return errors.New("hy options is not vail")
-	}
+	}*/
 	// Resolver
 	if len(c.HyOptions.Resolver) > 0 {
 		err := setResolver(c.HyOptions.Resolver)
@@ -137,7 +136,7 @@ func (s *Server) runServer(node *panel.NodeInfo, c *conf.ControllerConfig) error
 		aclEngine.DefaultAction = acl.ActionDirect
 	}*/
 	// Prometheus
-	trafficCounter := NewUserTrafficCounter()
+	s.counter = NewUserTrafficCounter()
 	// Packet conn
 	pktConnFuncFactory := serverPacketConnFuncFactoryMap[""]
 	if pktConnFuncFactory == nil {
@@ -156,7 +155,7 @@ func (s *Server) runServer(node *panel.NodeInfo, c *conf.ControllerConfig) error
 	up, down := SpeedTrans(node.UpMbps, node.DownMbps)
 	s.Server, err = cs.NewServer(tlsConfig, quicConfig, pktConn,
 		transport.DefaultServerTransport, up, down, false, aclEngine,
-		s.connectFunc, s.disconnectFunc, tcpRequestFunc, tcpErrorFunc, udpRequestFunc, udpErrorFunc, trafficCounter)
+		s.connectFunc, s.disconnectFunc, tcpRequestFunc, tcpErrorFunc, udpRequestFunc, udpErrorFunc, s.counter)
 	if err != nil {
 		return fmt.Errorf("new server error: %s", err)
 	}
@@ -174,25 +173,26 @@ func (s *Server) runServer(node *panel.NodeInfo, c *conf.ControllerConfig) error
 	return nil
 }
 
-func (s *Server) authByUser(addr net.Addr, auth []byte, sSend uint64, sRecv uint64) (bool, string, string) {
-	if email, ok := s.users.Load(string(auth)); ok {
-		return true, email.(string), "Done"
+func (s *Server) authByUser(addr net.Addr, auth []byte, sSend uint64, sRecv uint64) (bool, string) {
+	if _, ok := s.users.Load(string(auth)); ok {
+		return true, "Done"
 	}
-	return false, "", "Failed"
+	return false, "Failed"
 }
 
 func (s *Server) connectFunc(addr net.Addr, auth []byte, sSend uint64, sRecv uint64) (bool, string) {
-	ok, email, msg := s.authByUser(addr, auth, sSend, sRecv)
+	ok, msg := s.authByUser(addr, auth, sSend, sRecv)
 	if !ok {
 		logrus.WithFields(logrus.Fields{
 			"src": defaultIPMasker.Mask(addr.String()),
 		}).Info("Authentication failed, client rejected")
-	} else {
-		logrus.WithFields(logrus.Fields{
-			"src":   defaultIPMasker.Mask(addr.String()),
-			"email": email,
-		}).Info("Client connected")
+		return false, msg
 	}
+	logrus.WithFields(logrus.Fields{
+		"src":  defaultIPMasker.Mask(addr.String()),
+		"Uuid": string(auth),
+		"Tag":  s.tag,
+	}).Info("Client connected")
 	return ok, msg
 }
 

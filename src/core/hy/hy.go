@@ -5,14 +5,19 @@ import (
 	"sync"
 
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
+	vCore "github.com/Github-Aiko/Aiko-Server/src/core"
 	"github.com/hashicorp/go-multierror"
 )
+
+func init() {
+	vCore.RegisterCore("hy", NewHy)
+}
 
 type Hy struct {
 	servers sync.Map
 }
 
-func New(_ *conf.CoreConfig) (*Hy, error) {
+func NewHy(_ *conf.CoreConfig) (vCore.Core, error) {
 	return &Hy{
 		servers: sync.Map{},
 	}, nil

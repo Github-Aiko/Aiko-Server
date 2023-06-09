@@ -2,8 +2,9 @@ package panel
 
 import (
 	"fmt"
-	"github.com/go-resty/resty/v2"
 	path2 "path"
+
+	"github.com/go-resty/resty/v2"
 )
 
 // Debug set the client debug for client
@@ -20,7 +21,7 @@ func (c *Client) checkResponse(res *resty.Response, path string, err error) erro
 	}
 	if res.StatusCode() != 200 {
 		body := res.Body()
-		return fmt.Errorf("request %s failed: %s, %s", c.assembleURL(path), string(body), err)
+		return fmt.Errorf("request %s failed: %s", c.assembleURL(path), string(body))
 	}
 	return nil
 }
