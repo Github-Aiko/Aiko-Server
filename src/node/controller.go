@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	iprecoder "github.com/Github-Aiko/Aiko-Server/api/limit"
+	"github.com/Github-Aiko/Aiko-Server/api/limit"
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
 	vCore "github.com/Github-Aiko/Aiko-Server/src/core"
@@ -19,7 +19,7 @@ type Controller struct {
 	nodeInfo                  *panel.NodeInfo
 	Tag                       string
 	userList                  []panel.UserInfo
-	ipRecorder                iprecoder.IpRecorder
+	ipRecorder                limit.IpRecorder
 	nodeInfoMonitorPeriodic   *task.Periodic
 	userReportPeriodic        *task.Periodic
 	renewCertPeriodic         *task.Periodic
