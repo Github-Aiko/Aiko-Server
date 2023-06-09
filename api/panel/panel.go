@@ -46,7 +46,8 @@ func New(c *conf.ApiConfig) (*Client, error) {
 	c.NodeType = strings.ToLower(c.NodeType)
 	if c.NodeType != "v2ray" &&
 		c.NodeType != "trojan" &&
-		c.NodeType != "shadowsocks" {
+		c.NodeType != "shadowsocks" &&
+		c.NodeType != "hysteria" {
 		return nil, fmt.Errorf("unsupported Node type: %s", c.NodeType)
 	}
 	// Create Key for each requests
