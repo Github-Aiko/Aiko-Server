@@ -13,6 +13,12 @@ func init() {
 	vCore.RegisterCore("hy", NewHy)
 }
 
+func (h *Hy) Protocols() []string {
+	return []string{
+		"hysteria",
+	}
+}
+
 type Hy struct {
 	servers sync.Map
 }
