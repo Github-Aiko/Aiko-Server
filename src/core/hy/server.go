@@ -82,27 +82,26 @@ func (s *Server) runServer(node *panel.NodeInfo, c *conf.ControllerConfig) error
 		logrus.Info("Path MTU Discovery is not yet supported on this platform")
 	}
 	// Resolve preference
+	// Check if resolve preference is valid
 	if len(c.HyOptions.ResolvePreference) > 0 {
-		pref, err := transport.ResolvePreferenceFromString(c.HyOptions.Resolver)
+		pref, err := transport.ResolvePreferenceFromString(c.HyOptions.ResolvePreference)
 		if err != nil {
-			logrus.WithFields(logrus.Fields{
-				"error": err,
-			}).Fatal("Failed to parse the resolve preference")
+			return fmt.Errorf("resolve preference error: %s", err)
 		}
 		transport.DefaultServerTransport.ResolvePreference = pref
 	}
+
 	/*// SOCKS5 outbound
 	if config.SOCKS5Outbound.Server != "" {
 		transport.DefaultServerTransport.SOCKS5Client = transport.NewSOCKS5Client(config.SOCKS5Outbound.Server,
 			config.SOCKS5Outbound.User, config.SOCKS5Outbound.Password)
 	}*/
 	// Bind outbound
+	// Check if send device is valid
 	if c.HyOptions.SendDevice != "" {
 		iface, err := net.InterfaceByName(c.HyOptions.SendDevice)
 		if err != nil {
-			logrus.WithFields(logrus.Fields{
-				"error": err,
-			}).Fatal("Failed to find the interface")
+			return fmt.Errorf("find interface error: %s", err)
 		}
 		transport.DefaultServerTransport.LocalUDPIntf = iface
 		sockopt.BindDialer(transport.DefaultServerTransport.Dialer, iface)
