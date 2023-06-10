@@ -82,7 +82,7 @@ func (s *Server) runServer(node *panel.NodeInfo, c *conf.ControllerConfig) error
 		logrus.Info("Path MTU Discovery is not yet supported on this platform")
 	}
 	// Resolve preference
-	if len(c.HyOptions.ResolvePreference) > 0 {
+	/*if len(c.HyOptions.ResolvePreference) > 0 {
 		pref, err := transport.ResolvePreferenceFromString(c.HyOptions.Resolver)
 		if err != nil {
 			logrus.WithFields(logrus.Fields{
@@ -90,7 +90,7 @@ func (s *Server) runServer(node *panel.NodeInfo, c *conf.ControllerConfig) error
 			}).Fatal("Failed to parse the resolve preference")
 		}
 		transport.DefaultServerTransport.ResolvePreference = pref
-	}
+	}*/
 	/*// SOCKS5 outbound
 	if config.SOCKS5Outbound.Server != "" {
 		transport.DefaultServerTransport.SOCKS5Client = transport.NewSOCKS5Client(config.SOCKS5Outbound.Server,
