@@ -50,12 +50,12 @@ func (s *Server) runServer(node *panel.NodeInfo, c *conf.ControllerConfig) error
 		return errors.New("hy options is not vail")
 	}*/
 	// Resolver
-	if len(c.HyOptions.Resolver) > 0 {
+	/*if len(c.HyOptions.Resolver) > 0 {
 		err := setResolver(c.HyOptions.Resolver)
 		if err != nil {
 			return fmt.Errorf("set resolver error: %s", err)
 		}
-	}
+	}*/
 	// tls config
 	kpl, err := newKeypairLoader(c.CertConfig.CertFile, c.CertConfig.KeyFile)
 	if err != nil {
