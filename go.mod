@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/apernet/hysteria/core v1.3.5
-	github.com/beevik/ntp v1.0.0
+	github.com/beevik/ntp v1.1.1
 	github.com/folbricht/routedns v0.1.21-0.20230220022436-4ae86ce30d53
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-acme/lego/v4 v4.12.1
@@ -158,7 +158,7 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
-	github.com/stretchr/testify v1.8.3 // indirect
+	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.490 // indirect
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/dnspod v1.0.490 // indirect
 	github.com/transip/gotransip/v6 v6.17.0 // indirect
