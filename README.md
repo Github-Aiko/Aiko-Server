@@ -44,7 +44,7 @@ This project is for my personal learning, development and maintenance only, I do
 | Online user statistics | √     | √      | √           | √        |
 | Audit rules      | √     | √      | √           |          |
 | Custom DNS    | √     | √      | √           | √        |
-| Limit online IP numbers   | √     | √      | √           |          |
+| Limit online IP numbers   | √     | √      | √           | √         |
 | Connection limit     | √     | √      | √           |          |
 | Cross-node IP number limit  | √     | √      | √           |          |
 | Limit speed according to users    | √     | √      | √           |          |

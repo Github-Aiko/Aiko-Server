@@ -7,10 +7,10 @@ import (
 
 	"github.com/Github-Aiko/Aiko-Server/api/limit"
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
+	"github.com/Github-Aiko/Aiko-Server/src/common/task"
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
 	vCore "github.com/Github-Aiko/Aiko-Server/src/core"
 	"github.com/Github-Aiko/Aiko-Server/src/limiter"
-	"github.com/xtls/xray-core/common/task"
 )
 
 type Controller struct {
@@ -20,11 +20,11 @@ type Controller struct {
 	Tag                       string
 	userList                  []panel.UserInfo
 	ipRecorder                limit.IpRecorder
-	nodeInfoMonitorPeriodic   *task.Periodic
-	userReportPeriodic        *task.Periodic
-	renewCertPeriodic         *task.Periodic
-	dynamicSpeedLimitPeriodic *task.Periodic
-	onlineIpReportPeriodic    *task.Periodic
+	nodeInfoMonitorPeriodic   *task.Task
+	userReportPeriodic        *task.Task
+	renewCertPeriodic         *task.Task
+	dynamicSpeedLimitPeriodic *task.Task
+	onlineIpReportPeriodic    *task.Task
 	*conf.ControllerConfig
 }
 
@@ -93,38 +93,23 @@ func (c *Controller) Start() error {
 func (c *Controller) Close() error {
 	limiter.DeleteLimiter(c.Tag)
 	if c.nodeInfoMonitorPeriodic != nil {
-		err := c.nodeInfoMonitorPeriodic.Close()
-		if err != nil {
-			return fmt.Errorf("node info periodic close error: %s", err)
-		}
+		c.nodeInfoMonitorPeriodic.Close()
 	}
-	if c.nodeInfoMonitorPeriodic != nil {
-		err := c.userReportPeriodic.Close()
-		if err != nil {
-			return fmt.Errorf("user report periodic close error: %s", err)
-		}
+	if c.userReportPeriodic != nil {
+		c.userReportPeriodic.Close()
 	}
 	if c.renewCertPeriodic != nil {
-		err := c.renewCertPeriodic.Close()
-		if err != nil {
-			return fmt.Errorf("renew cert periodic close error: %s", err)
-		}
+		c.renewCertPeriodic.Close()
 	}
 	if c.dynamicSpeedLimitPeriodic != nil {
-		err := c.dynamicSpeedLimitPeriodic.Close()
-		if err != nil {
-			return fmt.Errorf("dynamic speed limit periodic close error: %s", err)
-		}
+		c.dynamicSpeedLimitPeriodic.Close()
 	}
 	if c.onlineIpReportPeriodic != nil {
-		err := c.onlineIpReportPeriodic.Close()
-		if err != nil {
-			return fmt.Errorf("online ip report periodic close error: %s", err)
-		}
+		c.onlineIpReportPeriodic.Close()
 	}
 	return nil
 }
 
 func (c *Controller) buildNodeTag() string {
-	return fmt.Sprintf("%s_%s_%d", c.nodeInfo.Type, c.ListenIP, c.nodeInfo.Id)
+	return fmt.Sprintf("%s-%s-%d", c.apiClient.APIHost, c.nodeInfo.Type, c.nodeInfo.Id)
 }
