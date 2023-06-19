@@ -24,7 +24,7 @@ func (t *Task) hasClosed() bool {
 	return !t.running
 }
 
-func (t *Task) checkedExecute() error {
+func (t *Task) checkedExecute(first bool) error {
 	if t.hasClosed() {
 		return nil
 	}
@@ -32,12 +32,19 @@ func (t *Task) checkedExecute() error {
 	t.access.Lock()
 	defer t.access.Unlock()
 
+	if first {
+		if err := t.Execute(); err != nil {
+			t.running = false
+			return err
+		}
+	}
+
 	if !t.running {
 		return nil
 	}
 
 	t.timer = time.AfterFunc(t.Interval, func() {
-		t.checkedExecute()
+		t.checkedExecute(true)
 	})
 
 	return nil
@@ -52,15 +59,7 @@ func (t *Task) Start(first bool) error {
 	}
 	t.running = true
 	t.access.Unlock()
-	if first {
-		if err := t.Execute(); err != nil {
-			t.access.Lock()
-			t.running = false
-			t.access.Unlock()
-			return err
-		}
-	}
-	if err := t.checkedExecute(); err != nil {
+	if err := t.checkedExecute(first); err != nil {
 		t.access.Lock()
 		t.running = false
 		t.access.Unlock()
