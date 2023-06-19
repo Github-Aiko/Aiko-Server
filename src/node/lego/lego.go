@@ -17,7 +17,8 @@ type Lego struct {
 }
 
 func New(config *conf.CertConfig) (*Lego, error) {
-	user, err := NewUser(path.Join("/etc/Aiko-Server/cert/user/",
+	user, err := NewUser(path.Join(path.Dir(config.CertFile),
+		"user",
 		fmt.Sprintf("user-%s.json", config.Email)),
 		config.Email)
 	if err != nil {
