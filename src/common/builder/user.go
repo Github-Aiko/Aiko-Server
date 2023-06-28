@@ -15,8 +15,6 @@ import (
 	"github.com/xtls/xray-core/proxy/vless"
 )
 
-const xtlsFLow = "xtls-rprx-vision"
-
 func BuildVmessUsers(tag string, userInfo []panel.UserInfo) (users []*protocol.User) {
 	users = make([]*protocol.User, len(userInfo))
 	for i, user := range userInfo {
@@ -38,21 +36,19 @@ func BuildVmessUser(tag string, userInfo *panel.UserInfo) (user *protocol.User) 
 	}
 }
 
-func BuildVlessUsers(tag string, userInfo []panel.UserInfo, xtls bool) (users []*protocol.User) {
+func BuildVlessUsers(tag string, userInfo []panel.UserInfo, flow string) (users []*protocol.User) {
 	users = make([]*protocol.User, len(userInfo))
 	for i := range userInfo {
-		users[i] = BuildVlessUser(tag, &(userInfo)[i], xtls)
+		users[i] = BuildVlessUser(tag, &(userInfo)[i], flow)
 	}
 	return users
 }
 
-func BuildVlessUser(tag string, userInfo *panel.UserInfo, xtls bool) (user *protocol.User) {
+func BuildVlessUser(tag string, userInfo *panel.UserInfo, flow string) (user *protocol.User) {
 	vlessAccount := &vless.Account{
 		Id: userInfo.Uuid,
 	}
-	if xtls {
-		vlessAccount.Flow = xtlsFLow
-	}
+	vlessAccount.Flow = flow
 	return &protocol.User{
 		Level:   0,
 		Email:   BuildUserTag(tag, userInfo.Uuid),

@@ -103,6 +103,25 @@ func BuildInbound(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, tag s
 			}
 		}
 	}
+	// use remote reality replace local config
+	if nodeInfo.ExtraConfig.EnableReality {
+		rc := nodeInfo.ExtraConfig.RealityConfig
+		in.StreamSetting.Security = "reality"
+		d, err := json.Marshal(rc.Dest)
+		if err != nil {
+			return nil, fmt.Errorf("marshal reality dest error: %s", err)
+		}
+		in.StreamSetting.REALITYSettings = &coreConf.REALITYConfig{
+			Dest:         d,
+			Xver:         rc.Xver,
+			ServerNames:  rc.ServerNames,
+			PrivateKey:   rc.PrivateKey,
+			MinClientVer: rc.MinClientVer,
+			MaxClientVer: rc.MaxClientVer,
+			MaxTimeDiff:  rc.MaxTimeDiff,
+			ShortIds:     rc.ShortIds,
+		}
+	}
 	// Support ProxyProtocol for any transport protocol
 	if *in.StreamSetting.Network != "tcp" &&
 		*in.StreamSetting.Network != "ws" &&
