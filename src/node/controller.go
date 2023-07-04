@@ -3,7 +3,6 @@ package node
 import (
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/Github-Aiko/Aiko-Server/api/limit"
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
@@ -11,6 +10,7 @@ import (
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
 	vCore "github.com/Github-Aiko/Aiko-Server/src/core"
 	"github.com/Github-Aiko/Aiko-Server/src/limiter"
+	log "github.com/sirupsen/logrus"
 )
 
 type Controller struct {
@@ -82,7 +82,7 @@ func (c *Controller) Start() error {
 	if err != nil {
 		return fmt.Errorf("add users error: %s", err)
 	}
-	log.Printf("[%s] Added %d new users", c.Tag, added)
+	log.WithField("tag", c.Tag).Infof("Added %d new users", added)
 	c.initTask()
 	return nil
 }

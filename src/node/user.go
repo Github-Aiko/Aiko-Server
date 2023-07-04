@@ -1,9 +1,10 @@
 package node
 
 import (
-	"log"
 	"runtime"
 	"strconv"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
 )
@@ -26,9 +27,12 @@ func (c *Controller) reportUserTrafficTask() (err error) {
 	if len(userTraffic) > 0 {
 		err = c.apiClient.ReportUserTraffic(userTraffic)
 		if err != nil {
-			log.Printf("Report user traffic faild: %s", err)
+			log.WithFields(log.Fields{
+				"tag": c.Tag,
+				"err": err,
+			}).Error("Report user traffic faild")
 		} else {
-			log.Printf("[%s] Report %d online users", c.Tag, len(userTraffic))
+			log.WithField("tag", err).Errorf("Report %d online users", len(userTraffic))
 		}
 	}
 	userTraffic = nil
