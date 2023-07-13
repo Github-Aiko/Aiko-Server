@@ -1,10 +1,10 @@
 package limiter
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
+	"github.com/Github-Aiko/Aiko-Server/src/common/format"
 )
 
 func (l *Limiter) AddDynamicSpeedLimit(tag string, userInfo *panel.UserInfo, limitNum int, expire int64) error {
@@ -12,7 +12,7 @@ func (l *Limiter) AddDynamicSpeedLimit(tag string, userInfo *panel.UserInfo, lim
 		DynamicSpeedLimit: limitNum,
 		ExpireTime:        time.Now().Add(time.Duration(expire) * time.Second).Unix(),
 	}
-	l.UserLimitInfo.Store(fmt.Sprintf("%s|%s|%d", tag, userInfo.Uuid, userInfo.Id), userLimit)
+	l.UserLimitInfo.Store(format.UserTag(tag, userInfo.Uuid), userLimit)
 	return nil
 }
 

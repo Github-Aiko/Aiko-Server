@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Github-Aiko/Aiko-Server/src/common/builder"
+	"github.com/Github-Aiko/Aiko-Server/src/common/format"
 	vCore "github.com/Github-Aiko/Aiko-Server/src/core"
 	"github.com/xtls/xray-core/common/protocol"
 	"github.com/xtls/xray-core/proxy"
@@ -41,8 +41,8 @@ func (c *Core) DelUsers(users []string, tag string) error {
 }
 
 func (c *Core) GetUserTraffic(tag, uuid string, reset bool) (up int64, down int64) {
-	upName := "user>>>" + builder.BuildUserTag(tag, uuid) + ">>>traffic>>>uplink"
-	downName := "user>>>" + builder.BuildUserTag(tag, uuid) + ">>>traffic>>>downlink"
+	upName := "user>>>" + format.UserTag(tag, uuid) + ">>>traffic>>>uplink"
+	downName := "user>>>" + format.UserTag(tag, uuid) + ">>>traffic>>>downlink"
 	upCounter := c.shm.GetCounter(upName)
 	downCounter := c.shm.GetCounter(downName)
 	if reset {
@@ -72,21 +72,21 @@ func (c *Core) AddUsers(p *vCore.AddUsersParams) (added int, err error) {
 
 			if p.Config.XrayOptions.VlessFlow != "" {
 				if p.Config.XrayOptions.VlessFlow == p.NodeInfo.ExtraConfig.VlessFlow {
-					users = builder.BuildVlessUsers(p.Tag, p.UserInfo, p.Config.XrayOptions.VlessFlow)
+					users = buildVlessUsers(p.Tag, p.UserInfo, p.Config.XrayOptions.VlessFlow)
 				} else {
-					users = builder.BuildVlessUsers(p.Tag, p.UserInfo, p.NodeInfo.ExtraConfig.VlessFlow)
+					users = buildVlessUsers(p.Tag, p.UserInfo, p.NodeInfo.ExtraConfig.VlessFlow)
 				}
 
 			} else {
-				users = builder.BuildVlessUsers(p.Tag, p.UserInfo, p.NodeInfo.ExtraConfig.VlessFlow)
+				users = buildVlessUsers(p.Tag, p.UserInfo, p.NodeInfo.ExtraConfig.VlessFlow)
 			}
 		} else {
-			users = builder.BuildVmessUsers(p.Tag, p.UserInfo)
+			users = buildVmessUsers(p.Tag, p.UserInfo)
 		}
 	case "trojan":
-		users = builder.BuildTrojanUsers(p.Tag, p.UserInfo)
+		users = buildTrojanUsers(p.Tag, p.UserInfo)
 	case "shadowsocks":
-		users = builder.BuildSSUsers(p.Tag,
+		users = buildSSUsers(p.Tag,
 			p.UserInfo,
 			p.NodeInfo.Cipher,
 			p.NodeInfo.ServerKey)

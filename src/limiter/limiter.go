@@ -3,13 +3,14 @@ package limiter
 import (
 	"errors"
 	"fmt"
-	"log"
 	"regexp"
 	"sync"
 	"time"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
-	"github.com/Github-Aiko/Aiko-Server/src/common/builder"
+	"github.com/Github-Aiko/Aiko-Server/src/common/format"
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
 	"github.com/juju/ratelimit"
 	"github.com/xtls/xray-core/common/task"
@@ -25,7 +26,8 @@ func Init() {
 		Execute:  ClearOnlineIP,
 	}
 	go func() {
-		log.Println("Limiter: ClearOnlineIP started")
+		log.WithField("Type", "Limiter").
+			Debug("ClearOnlineIP started")
 		time.Sleep(time.Minute * 2)
 		_ = c.Start()
 	}()
@@ -61,7 +63,7 @@ func AddLimiter(tag string, l *conf.LimitConfig, users []panel.UserInfo) *Limite
 				SpeedLimit: users[i].SpeedLimit,
 				ExpireTime: 0,
 			}
-			info.UserLimitInfo.Store(builder.BuildUserTag(tag, users[i].Uuid), userLimit)
+			info.UserLimitInfo.Store(format.UserTag(tag, users[i].Uuid), userLimit)
 		}
 	}
 	limitLock.Lock()
@@ -86,10 +88,7 @@ func UpdateLimiter(tag string, added []panel.UserInfo, deleted []panel.UserInfo)
 		return fmt.Errorf("get limit error: %s", err)
 	}
 	for i := range deleted {
-		l.UserLimitInfo.Delete(fmt.Sprintf("%s|%s|%d",
-			tag,
-			deleted[i].Uuid,
-			deleted[i].Id))
+		l.UserLimitInfo.Delete(format.UserTag(tag, deleted[i].Uuid))
 	}
 	for i := range added {
 		if added[i].SpeedLimit != 0 {
@@ -98,10 +97,7 @@ func UpdateLimiter(tag string, added []panel.UserInfo, deleted []panel.UserInfo)
 				SpeedLimit: added[i].SpeedLimit,
 				ExpireTime: 0,
 			}
-			l.UserLimitInfo.Store(fmt.Sprintf("%s|%s|%d",
-				tag,
-				added[i].Uuid,
-				added[i].Id), userLimit)
+			l.UserLimitInfo.Store(format.UserTag(tag, added[i].Uuid), userLimit)
 		}
 	}
 	return nil

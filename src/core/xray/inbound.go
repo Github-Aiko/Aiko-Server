@@ -1,4 +1,4 @@
-package builder
+package xray
 
 import (
 	"crypto/rand"
@@ -16,7 +16,7 @@ import (
 )
 
 // BuildInbound build Inbound config for different protocol
-func BuildInbound(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, tag string) (*core.InboundHandlerConfig, error) {
+func buildInbound(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, tag string) (*core.InboundHandlerConfig, error) {
 	in := &coreConf.InboundDetourConfig{}
 	// Set network protocol
 	t := coreConf.TransportProtocol(nodeInfo.Network)
@@ -102,24 +102,24 @@ func BuildInbound(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, tag s
 				RejectUnknownSNI: config.CertConfig.RejectUnknownSni,
 			}
 		}
-	}
-	// use remote reality replace local config
-	if nodeInfo.ExtraConfig.EnableReality {
-		rc := nodeInfo.ExtraConfig.RealityConfig
-		in.StreamSetting.Security = "reality"
-		d, err := json.Marshal(rc.Dest)
-		if err != nil {
-			return nil, fmt.Errorf("marshal reality dest error: %s", err)
-		}
-		in.StreamSetting.REALITYSettings = &coreConf.REALITYConfig{
-			Dest:         d,
-			Xver:         rc.Xver,
-			ServerNames:  rc.ServerNames,
-			PrivateKey:   rc.PrivateKey,
-			MinClientVer: rc.MinClientVer,
-			MaxClientVer: rc.MaxClientVer,
-			MaxTimeDiff:  rc.MaxTimeDiff,
-			ShortIds:     rc.ShortIds,
+		// use remote reality replace local config
+		if nodeInfo.ExtraConfig.EnableReality {
+			rc := nodeInfo.ExtraConfig.RealityConfig
+			in.StreamSetting.Security = "reality"
+			d, err := json.Marshal(rc.Dest)
+			if err != nil {
+				return nil, fmt.Errorf("marshal reality dest error: %s", err)
+			}
+			in.StreamSetting.REALITYSettings = &coreConf.REALITYConfig{
+				Dest:         d,
+				Xver:         rc.Xver,
+				ServerNames:  rc.ServerNames,
+				PrivateKey:   rc.PrivateKey,
+				MinClientVer: rc.MinClientVer,
+				MaxClientVer: rc.MaxClientVer,
+				MaxTimeDiff:  rc.MaxTimeDiff,
+				ShortIds:     rc.ShortIds,
+			}
 		}
 	}
 	// Support ProxyProtocol for any transport protocol
@@ -137,7 +137,8 @@ func BuildInbound(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, tag s
 }
 
 func buildV2ray(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, inbound *coreConf.InboundDetourConfig) error {
-	if config.XrayOptions.EnableVless {
+	if config.XrayOptions.EnableVless ||
+		nodeInfo.ExtraConfig.EnableVless {
 		//Set vless
 		inbound.Protocol = "vless"
 		if config.XrayOptions.EnableFallback {
@@ -193,6 +194,8 @@ func buildV2ray(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, inbound
 		if err != nil {
 			return fmt.Errorf("unmarshal grpc settings error: %s", err)
 		}
+	default:
+		return errors.New("the network type is not vail")
 	}
 	return nil
 }
