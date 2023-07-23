@@ -22,7 +22,7 @@ var (
 
 var serverCommand = cobra.Command{
 	Use:   "server",
-	Short: "Run AikoR server",
+	Short: "Run Aiko-Server server",
 	Run:   serverHandle,
 	Args:  cobra.NoArgs,
 }
@@ -30,7 +30,7 @@ var serverCommand = cobra.Command{
 func init() {
 	serverCommand.PersistentFlags().
 		StringVarP(&config, "config", "c",
-			"/etc/AikoR/aiko.yml", "config file path")
+			"/etc/Aiko-Server/aiko.yml", "config file path")
 	serverCommand.PersistentFlags().
 		BoolVarP(&watch, "watch", "w",
 			true, "watch file path change")
@@ -46,7 +46,7 @@ func serverHandle(_ *cobra.Command, _ []string) {
 		return
 	}
 	limiter.Init()
-	log.Info("Start AikoR...")
+	log.Info("Start Aiko-Server...")
 	vc, err := vCore.NewCore(&c.CoreConfig)
 	if err != nil {
 		log.WithField("err", err).Error("new core failed")

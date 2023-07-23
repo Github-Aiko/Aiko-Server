@@ -10,7 +10,7 @@ import (
 
 var (
 	version  = "TempVersion" //use ldflags replace
-	codename = "AikoR"
+	codename = "Aiko-Server"
 	intro    = "A V2board backend based on multi core"
 )
 

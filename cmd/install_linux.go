@@ -13,7 +13,7 @@ var targetVersion string
 var (
 	updateCommand = cobra.Command{
 		Use:   "update",
-		Short: "Update AikoR version",
+		Short: "Update Aiko-Server version",
 		Run: func(_ *cobra.Command, _ []string) {
 			exec.RunCommandStd("bash",
 				"<(curl -Ls https://raw.githubusercontent.com/Github-Aiko/Aiko-Server-script/master/install.sh)",
@@ -23,7 +23,7 @@ var (
 	}
 	uninstallCommand = cobra.Command{
 		Use:   "uninstall",
-		Short: "Uninstall AikoR",
+		Short: "Uninstall Aiko-Server",
 		Run:   uninstallHandle,
 	}
 )
@@ -36,21 +36,21 @@ func init() {
 
 func uninstallHandle(_ *cobra.Command, _ []string) {
 	var yes string
-	fmt.Println(Warn("Are you sure you want to uninstall AikoR?(Y/n)"))
+	fmt.Println(Warn("Are you sure you want to uninstall Aiko-Server?(Y/n)"))
 	fmt.Scan(&yes)
 	if strings.ToLower(yes) != "y" {
 		fmt.Println("Uninstallation canceled")
 	}
-	_, err := exec.RunCommandByShell("systemctl stop AikoR && systemctl disable AikoR")
+	_, err := exec.RunCommandByShell("systemctl stop Aiko-Server && systemctl disable Aiko-Server")
 	if err != nil {
 		fmt.Println(Err("exec cmd error: ", err))
 		fmt.Println(Err("Uninstallation failed"))
 		return
 	}
-	_ = os.RemoveAll("/etc/systemd/system/AikoR.service")
-	_ = os.RemoveAll("/etc/AikoR/")
-	_ = os.RemoveAll("/usr/local/AikoR/")
-	_ = os.RemoveAll("/bin/AikoR")
+	_ = os.RemoveAll("/etc/systemd/system/Aiko-Server.service")
+	_ = os.RemoveAll("/etc/Aiko-Server/")
+	_ = os.RemoveAll("/usr/local/Aiko-Server/")
+	_ = os.RemoveAll("/bin/Aiko-Server")
 	_, err = exec.RunCommandByShell("systemctl daemon-reload && systemctl reset-failed")
 	if err != nil {
 		fmt.Println(Err("exec cmd error: ", err))

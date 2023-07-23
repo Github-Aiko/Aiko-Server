@@ -14,7 +14,7 @@ const (
 )
 
 func checkRunning() (bool, error) {
-	o, err := exec.RunCommandByShell("systemctl status AikoR | grep Active")
+	o, err := exec.RunCommandByShell("systemctl status Aiko-Server | grep Active")
 	if err != nil {
 		return false, err
 	}
