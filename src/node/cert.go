@@ -2,10 +2,9 @@ package node
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/Github-Aiko/Aiko-Server/src/common/file"
 	"github.com/Github-Aiko/Aiko-Server/src/node/lego"
+	"log"
 )
 
 func (c *Controller) renewCertTask() {

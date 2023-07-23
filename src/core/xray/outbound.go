@@ -2,7 +2,6 @@ package xray
 
 import (
 	"fmt"
-
 	conf2 "github.com/Github-Aiko/Aiko-Server/src/conf"
 	"github.com/goccy/go-json"
 	"github.com/xtls/xray-core/common/net"
@@ -37,7 +36,7 @@ func buildOutbound(config *conf2.ControllerConfig, tag string) (*core.OutboundHa
 	var setting json.RawMessage
 	setting, err := json.Marshal(proxySetting)
 	if err != nil {
-		return nil, fmt.Errorf("marshal proxy config fialed: %s", err)
+		return nil, fmt.Errorf("marshal proxy config error: %s", err)
 	}
 	outboundDetourConfig.Settings = &setting
 	return outboundDetourConfig.Build()

@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/Github-Aiko/Aiko-Server/src/common/exec"
+	"github.com/Github-Aiko/Aiko-Server/common/exec"
 	"github.com/spf13/cobra"
 	"time"
 )
@@ -10,24 +10,24 @@ import (
 var (
 	startCommand = cobra.Command{
 		Use:   "start",
-		Short: "Start Aiko-Server service",
+		Short: "Start AikoR service",
 		Run:   startHandle,
 	}
 	stopCommand = cobra.Command{
 		Use:   "stop",
-		Short: "Stop Aiko-Server service",
+		Short: "Stop AikoR service",
 		Run:   stopHandle,
 	}
 	restartCommand = cobra.Command{
 		Use:   "restart",
-		Short: "Restart Aiko-Server service",
+		Short: "Restart AikoR service",
 		Run:   restartHandle,
 	}
 	logCommand = cobra.Command{
 		Use:   "log",
-		Short: "Output Aiko-Server log",
+		Short: "Output AikoR log",
 		Run: func(_ *cobra.Command, _ []string) {
-			exec.RunCommandStd("journalctl", "-u", "Aiko-Server.service", "-e", "--no-pager", "-f")
+			exec.RunCommandStd("journalctl", "-u", "AikoR.service", "-e", "--no-pager", "-f")
 		},
 	}
 )
@@ -43,68 +43,68 @@ func startHandle(_ *cobra.Command, _ []string) {
 	r, err := checkRunning()
 	if err != nil {
 		fmt.Println(Err("check status error: ", err))
-		fmt.Println(Err("AIKO-Server's launch failed"))
+		fmt.Println(Err("Failed to start AikoR"))
 		return
 	}
 	if r {
-		fmt.Println(Ok("AIKO-Server is running, no need to start again, if you need to restart, please choose to restart"))
+		fmt.Println(Ok("AikoR is already running, no need to start again. If you want to restart, please use the restart command"))
 	}
-	_, err = exec.RunCommandByShell("systemctl start Aiko-Server.service")
+	_, err = exec.RunCommandByShell("systemctl start AikoR.service")
 	if err != nil {
 		fmt.Println(Err("exec start cmd error: ", err))
-		fmt.Println(Err("AIKO-Server launch failed"))
+		fmt.Println(Err("Failed to start AikoR"))
 		return
 	}
 	time.Sleep(time.Second * 3)
 	r, err = checkRunning()
 	if err != nil {
 		fmt.Println(Err("check status error: ", err))
-		fmt.Println(Err("AIKO-Server launch failed"))
+		fmt.Println(Err("Failed to start AikoR"))
 	}
 	if !r {
-		fmt.Println(Err("Aiko-Server may start failure, please use Aiko-Server Log later to view log information"))
+		fmt.Println(Err("AikoR may have failed to start, please use the AikoR log command to view the log information later"))
 		return
 	}
-	fmt.Println(Ok("Aiko-Server starts successfully, please use Aiko-Server Log to view the running log"))
+	fmt.Println(Ok("AikoR started successfully, please use the AikoR log command to view the running log"))
 }
 
 func stopHandle(_ *cobra.Command, _ []string) {
-	_, err := exec.RunCommandByShell("systemctl stop Aiko-Server.service")
+	_, err := exec.RunCommandByShell("systemctl stop AikoR.service")
 	if err != nil {
 		fmt.Println(Err("exec stop cmd error: ", err))
-		fmt.Println(Err("Aiko-Server stops failing"))
+		fmt.Println(Err("Failed to stop AikoR"))
 		return
 	}
 	time.Sleep(2 * time.Second)
 	r, err := checkRunning()
 	if err != nil {
 		fmt.Println(Err("check status error:", err))
-		fmt.Println(Err("Aiko-Server stops failing"))
+		fmt.Println(Err("Failed to stop AikoR"))
 		return
 	}
 	if r {
-		fmt.Println(Err("Aiko-Server stops failing，It may be because the stop time exceeds two seconds, please check the log information later"))
+		fmt.Println(Err("Failed to stop AikoR, it may be because the stop time exceeded two seconds, please check the log information later"))
 		return
 	}
-	fmt.Println(Ok("Aiko-Server Stop success"))
+	fmt.Println(Ok("AikoR stopped successfully"))
 }
 
 func restartHandle(_ *cobra.Command, _ []string) {
-	_, err := exec.RunCommandByShell("systemctl restart Aiko-Server.service")
+	_, err := exec.RunCommandByShell("systemctl restart AikoR.service")
 	if err != nil {
 		fmt.Println(Err("exec restart cmd error: ", err))
-		fmt.Println(Err("Aiko-Server restart failed"))
+		fmt.Println(Err("Failed to restart AikoR"))
 		return
 	}
 	r, err := checkRunning()
 	if err != nil {
 		fmt.Println(Err("check status error: ", err))
-		fmt.Println(Err("Aiko-Server restart failed"))
+		fmt.Println(Err("Failed to restart AikoR"))
 		return
 	}
 	if !r {
-		fmt.Println(Err("Aiko-Server may start failure, please use Aiko-Server Log later to view log information"))
+		fmt.Println(Err("AikoR may have failed to start, please use the AikoR log command to view the log information later"))
 		return
 	}
-	fmt.Println(Ok("Aiko-Server restarted successfully"))
+	fmt.Println(Ok("AikoR restarted successfully"))
 }

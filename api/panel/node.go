@@ -1,15 +1,19 @@
 package panel
 
 import (
+	"bytes"
+	"encoding/base64"
 	"fmt"
+	"os"
 	"reflect"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/Github-Aiko/Aiko-Server/src/conf"
+	"github.com/Github-Aiko/Aiko-Server/src/common/crypt"
 	"github.com/goccy/go-json"
+	log "github.com/sirupsen/logrus"
+	coreConf "github.com/xtls/xray-core/infra/conf"
 )
 
 type CommonNodeRsp struct {
@@ -43,11 +47,6 @@ type ShadowsocksNodeRsp struct {
 	ServerKey string `json:"server_key"`
 }
 
-type TrojanNodeRsp struct {
-	Host       string `json:"host"`
-	ServerName string `json:"server_name"`
-}
-
 type HysteriaNodeRsp struct {
 	UpMbps   int    `json:"up_mbps"`
 	DownMbps int    `json:"down_mbps"`
@@ -57,13 +56,13 @@ type HysteriaNodeRsp struct {
 type NodeInfo struct {
 	Id              int
 	Type            string
-	Rules           []*regexp.Regexp
+	Rules           Rules
+	Host            string
 	Port            int
 	Network         string
 	ExtraConfig     V2rayExtraConfig
 	NetworkSettings json.RawMessage
 	Tls             bool
-	Host            string
 	ServerName      string
 	UpMbps          int
 	DownMbps        int
@@ -74,23 +73,38 @@ type NodeInfo struct {
 	PullInterval    time.Duration
 }
 
+type Rules struct {
+	Regexp   []string
+	Protocol []string
+}
+
 type V2rayExtraConfig struct {
-	EnableVless   bool               `json:"EnableVless"`
-	VlessFlow     string             `json:"VlessFlow"`
-	EnableReality bool               `json:"EnableReality"`
-	RealityConfig conf.RealityConfig `json:"RealityConfig"`
+	EnableVless   string         `json:"EnableVless"`
+	VlessFlow     string         `json:"VlessFlow"`
+	EnableReality string         `json:"EnableReality"`
+	RealityConfig *RealityConfig `json:"RealityConfig"`
+}
+
+type RealityConfig struct {
+	Dest         interface{} `yaml:"Dest" json:"Dest"`
+	Xver         string      `yaml:"Xver" json:"Xver"`
+	ServerNames  []string    `yaml:"ServerNames" json:"ServerNames"`
+	PrivateKey   string      `yaml:"PrivateKey" json:"PrivateKey"`
+	MinClientVer string      `yaml:"MinClientVer" json:"MinClientVer"`
+	MaxClientVer string      `yaml:"MaxClientVer" json:"MaxClientVer"`
+	MaxTimeDiff  string      `yaml:"MaxTimeDiff" json:"MaxTimeDiff"`
+	ShortIds     []string    `yaml:"ShortIds" json:"ShortIds"`
 }
 
 func (c *Client) GetNodeInfo() (node *NodeInfo, err error) {
-	const path = "/" + ApiType + "/" + ApiVersion + "/" + ApiServer + "/" + ApiPath + "/config"
+	const path = "/api/v1/server/Aiko/config"
 	r, err := c.client.
 		R().
-		SetHeader("If-None-Match", c.etag).
+		SetHeader("If-None-Match", c.nodeEtag).
 		Get(path)
 	if err = c.checkResponse(r, path, err); err != nil {
 		return
 	}
-
 	if r.StatusCode() == 304 {
 		return nil, nil
 	}
@@ -104,9 +118,6 @@ func (c *Client) GetNodeInfo() (node *NodeInfo, err error) {
 	if err != nil {
 		return nil, fmt.Errorf("decode common params error: %s", err)
 	}
-
-	var extra []byte
-
 	for i := range common.Routes { // parse rules from routes
 		var matchs []string
 		if _, ok := common.Routes[i].Match.(string); ok {
@@ -123,13 +134,45 @@ func (c *Client) GetNodeInfo() (node *NodeInfo, err error) {
 		switch common.Routes[i].Action {
 		case "block":
 			for _, v := range matchs {
-				node.Rules = append(node.Rules, regexp.MustCompile(v))
+				if strings.HasPrefix(v, "protocol:") {
+					// protocol
+					node.Rules.Protocol = append(node.Rules.Protocol, strings.TrimPrefix(v, "protocol:"))
+				} else {
+					// domain
+					node.Rules.Regexp = append(node.Rules.Regexp, strings.TrimPrefix(v, "regexp:"))
+				}
 			}
 		case "dns":
-			if matchs[0] != "extra" {
+			if matchs[0] != "main" {
 				break
 			}
-			extra = []byte(strings.Join(matchs[1:], ""))
+			dnsPath := os.Getenv("XRAY_DNS_PATH")
+			if dnsPath == "" {
+				break
+			}
+			dns := []byte(strings.Join(matchs[1:], ""))
+			currentData, err := os.ReadFile(dnsPath)
+			if err != nil {
+				log.WithField("err", err).Panic("Failed to read XRAY_DNS_PATH")
+				break
+			}
+			if !bytes.Equal(currentData, dns) {
+				coreDnsConfig := &coreConf.DNSConfig{}
+				if err = json.NewDecoder(bytes.NewReader(dns)).Decode(coreDnsConfig); err != nil {
+					log.WithField("err", err).Panic("Failed to unmarshal DNS config")
+				}
+				_, err := coreDnsConfig.Build()
+				if err != nil {
+					log.WithField("err", err).Panic("Failed to understand DNS config, Please check: https://xtls.github.io/config/dns.html for help")
+					break
+				}
+				if err = os.Truncate(dnsPath, 0); err != nil {
+					log.WithField("err", err).Panic("Failed to clear XRAY DNS PATH file")
+				}
+				if err = os.WriteFile(dnsPath, dns, 0644); err != nil {
+					log.WithField("err", err).Panic("Failed to write DNS to XRAY DNS PATH file")
+				}
+			}
 		}
 	}
 	node.ServerName = common.ServerName
@@ -151,10 +194,17 @@ func (c *Client) GetNodeInfo() (node *NodeInfo, err error) {
 		if rsp.Tls == 1 {
 			node.Tls = true
 		}
-		if len(extra) != 0 {
-			err = json.Unmarshal(extra, &node.ExtraConfig)
-			if err != nil {
-				return nil, fmt.Errorf("decode v2ray extra error: %s", err)
+		err = json.Unmarshal(rsp.NetworkSettings, &node.ExtraConfig)
+		if err != nil {
+			return nil, fmt.Errorf("decode v2ray extra error: %s", err)
+		}
+		if node.ExtraConfig.EnableReality == "true" {
+			if node.ExtraConfig.RealityConfig == nil {
+				node.ExtraConfig.EnableReality = "false"
+			} else {
+				key := crypt.GenX25519Private([]byte(strconv.Itoa(c.NodeId) + c.NodeType + c.Token +
+					node.ExtraConfig.RealityConfig.PrivateKey))
+				node.ExtraConfig.RealityConfig.PrivateKey = base64.RawURLEncoding.EncodeToString(key)
 			}
 		}
 	case "shadowsocks":
@@ -166,11 +216,7 @@ func (c *Client) GetNodeInfo() (node *NodeInfo, err error) {
 		node.ServerKey = rsp.ServerKey
 		node.Cipher = rsp.Cipher
 	case "trojan":
-		rsp := TrojanNodeRsp{}
-		err = json.Unmarshal(r.Body(), &rsp)
-		if err != nil {
-			return nil, fmt.Errorf("decode v2ray params error: %s", err)
-		}
+		node.Tls = true
 	case "hysteria":
 		rsp := HysteriaNodeRsp{}
 		err = json.Unmarshal(r.Body(), &rsp)
@@ -181,7 +227,7 @@ func (c *Client) GetNodeInfo() (node *NodeInfo, err error) {
 		node.UpMbps = rsp.UpMbps
 		node.HyObfs = rsp.Obfs
 	}
-	c.etag = r.Header().Get("ETag")
+	c.nodeEtag = r.Header().Get("ETag")
 	return
 }
 

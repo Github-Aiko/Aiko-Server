@@ -2,10 +2,9 @@ package conf
 
 import (
 	"fmt"
+	"gopkg.in/yaml.v3"
 	"io"
 	"os"
-
-	"gopkg.in/yaml.v3"
 )
 
 type Conf struct {
@@ -19,7 +18,7 @@ func New() *Conf {
 			Type: "xray",
 			XrayConfig: &XrayConfig{
 				LogConfig:          NewLogConfig(),
-				AssetPath:          "/etc/Aiko-Server/",
+				AssetPath:          "/etc/AikoR/",
 				DnsConfigPath:      "",
 				InboundConfigPath:  "",
 				OutboundConfigPath: "",

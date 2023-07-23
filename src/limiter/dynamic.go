@@ -1,10 +1,9 @@
 package limiter
 
 import (
-	"time"
-
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
 	"github.com/Github-Aiko/Aiko-Server/src/common/format"
+	"time"
 )
 
 func (l *Limiter) AddDynamicSpeedLimit(tag string, userInfo *panel.UserInfo, limitNum int, expire int64) error {

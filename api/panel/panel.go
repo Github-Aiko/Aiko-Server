@@ -19,11 +19,12 @@ import (
 type Client struct {
 	client        *resty.Client
 	APIHost       string
-	Key           string
+	Token         string
 	NodeType      string
 	NodeId        int
 	LocalRuleList []*regexp.Regexp
-	etag          string
+	nodeEtag      string
+	userEtag      string
 }
 
 func New(c *conf.ApiConfig) (*Client, error) {
@@ -49,7 +50,7 @@ func New(c *conf.ApiConfig) (*Client, error) {
 	default:
 		return nil, fmt.Errorf("unsupported Node type: %s", c.NodeType)
 	}
-	// Create Key for each requests
+	// set params
 	client.SetQueryParams(map[string]string{
 		"node_type": c.NodeType,
 		"node_id":   strconv.Itoa(c.NodeID),
@@ -59,7 +60,7 @@ func New(c *conf.ApiConfig) (*Client, error) {
 	localRuleList := readLocalRuleList(c.RuleListPath)
 	return &Client{
 		client:        client,
-		Key:           c.Key,
+		Token:         c.Key,
 		APIHost:       c.APIHost,
 		NodeType:      c.NodeType,
 		NodeId:        c.NodeID,

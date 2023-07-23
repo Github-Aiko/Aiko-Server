@@ -1,11 +1,10 @@
 package lego
 
 import (
+	"github.com/Github-Aiko/Aiko-Server/src/conf"
 	"log"
 	"os"
 	"testing"
-
-	"github.com/Github-Aiko/Aiko-Server/src/conf"
 )
 
 var l *Lego

@@ -12,15 +12,14 @@ import (
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
 	"github.com/Github-Aiko/Aiko-Server/src/limiter"
-	"github.com/apernet/hysteria/core/sockopt"
+	"github.com/Yuzuki616/hysteria/core/sockopt"
+	"github.com/Yuzuki616/quic-go"
 
-	"github.com/quic-go/quic-go"
-
-	"github.com/apernet/hysteria/core/acl"
-	"github.com/apernet/hysteria/core/cs"
-	"github.com/apernet/hysteria/core/pktconns"
-	"github.com/apernet/hysteria/core/pmtud"
-	"github.com/apernet/hysteria/core/transport"
+	"github.com/Yuzuki616/hysteria/core/acl"
+	"github.com/Yuzuki616/hysteria/core/cs"
+	"github.com/Yuzuki616/hysteria/core/pktconns"
+	"github.com/Yuzuki616/hysteria/core/pmtud"
+	"github.com/Yuzuki616/hysteria/core/transport"
 	"github.com/sirupsen/logrus"
 )
 
@@ -85,26 +84,27 @@ func (s *Server) runServer(node *panel.NodeInfo, c *conf.ControllerConfig) error
 		logrus.Info("Path MTU Discovery is not yet supported on this platform")
 	}
 	// Resolve preference
-	// Check if resolve preference is valid
 	if len(c.HyOptions.ResolvePreference) > 0 {
-		pref, err := transport.ResolvePreferenceFromString(c.HyOptions.ResolvePreference)
+		pref, err := transport.ResolvePreferenceFromString(c.HyOptions.Resolver)
 		if err != nil {
-			return fmt.Errorf("resolve preference error: %s", err)
+			logrus.WithFields(logrus.Fields{
+				"error": err,
+			}).Fatal("Failed to parse the resolve preference")
 		}
 		transport.DefaultServerTransport.ResolvePreference = pref
 	}
-
 	/*// SOCKS5 outbound
 	if config.SOCKS5Outbound.Server != "" {
 		transport.DefaultServerTransport.SOCKS5Client = transport.NewSOCKS5Client(config.SOCKS5Outbound.Server,
 			config.SOCKS5Outbound.User, config.SOCKS5Outbound.Password)
 	}*/
 	// Bind outbound
-	// Check if send device is valid
 	if c.HyOptions.SendDevice != "" {
 		iface, err := net.InterfaceByName(c.HyOptions.SendDevice)
 		if err != nil {
-			return fmt.Errorf("find interface error: %s", err)
+			logrus.WithFields(logrus.Fields{
+				"error": err,
+			}).Fatal("Failed to find the interface")
 		}
 		transport.DefaultServerTransport.LocalUDPIntf = iface
 		sockopt.BindDialer(transport.DefaultServerTransport.Dialer, iface)
@@ -121,22 +121,6 @@ func (s *Server) runServer(node *panel.NodeInfo, c *conf.ControllerConfig) error
 	}
 	// ACL
 	var aclEngine *acl.Engine
-	/*if len(config.ACL) > 0 {
-		aclEngine, err = acl.LoadFromFile(config.ACL, func(addr string) (*net.IPAddr, error) {
-			ipAddr, _, err := transport.DefaultServerTransport.ResolveIPAddr(addr)
-			return ipAddr, err
-		},
-			func() (*geoip2.Reader, error) {
-				return loadMMDBReader(config.MMDB)
-			})
-		if err != nil {
-			logrus.WithFields(logrus.Fields{
-				"error": err,
-				"file":  config.ACL,
-			}).Fatal("Failed to parse ACL")
-		}
-		aclEngine.DefaultAction = acl.ActionDirect
-	}*/
 	// Prometheus
 	s.counter = NewUserTrafficCounter()
 	// Packet conn

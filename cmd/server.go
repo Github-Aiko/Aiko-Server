@@ -1,12 +1,11 @@
 package cmd
 
 import (
+	log "github.com/sirupsen/logrus"
 	"os"
 	"os/signal"
 	"runtime"
 	"syscall"
-
-	log "github.com/sirupsen/logrus"
 
 	vCore "github.com/Github-Aiko/Aiko-Server/src/core"
 
@@ -23,7 +22,7 @@ var (
 
 var serverCommand = cobra.Command{
 	Use:   "server",
-	Short: "Run Aiko-Server server",
+	Short: "Run AikoR server",
 	Run:   serverHandle,
 	Args:  cobra.NoArgs,
 }
@@ -31,7 +30,7 @@ var serverCommand = cobra.Command{
 func init() {
 	serverCommand.PersistentFlags().
 		StringVarP(&config, "config", "c",
-			"/etc/Aiko-Server/aiko.yml", "config file path")
+			"/etc/AikoR/aiko.yml", "config file path")
 	serverCommand.PersistentFlags().
 		BoolVarP(&watch, "watch", "w",
 			true, "watch file path change")
@@ -47,7 +46,7 @@ func serverHandle(_ *cobra.Command, _ []string) {
 		return
 	}
 	limiter.Init()
-	log.Info("Start Aiko-Server...")
+	log.Info("Start AikoR...")
 	vc, err := vCore.NewCore(&c.CoreConfig)
 	if err != nil {
 		log.WithField("err", err).Error("new core failed")
@@ -65,8 +64,9 @@ func serverHandle(_ *cobra.Command, _ []string) {
 		log.WithField("err", err).Error("Run nodes failed")
 		return
 	}
+	dns := os.Getenv("XRAY_DNS_PATH")
 	if watch {
-		err = c.Watch(config, func() {
+		err = c.Watch(config, dns, func() {
 			nodes.Close()
 			err = vc.Close()
 			if err != nil {
@@ -91,7 +91,7 @@ func serverHandle(_ *cobra.Command, _ []string) {
 			runtime.GC()
 		})
 		if err != nil {
-			log.WithField("err", err).Error("Watch config file failed")
+			log.WithField("err", err).Error("start watch failed")
 			return
 		}
 	}

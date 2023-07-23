@@ -2,4 +2,5 @@
 
 package imports
 
-import _ "github.com/Github-Aiko/Aiko-Server/src/core/hy"
+// not yet tested
+import _ "github.com/Github-Aiko/Aiko-Server/core/hy"

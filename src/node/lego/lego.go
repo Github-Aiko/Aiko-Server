@@ -2,13 +2,12 @@ package lego
 
 import (
 	"fmt"
-	"os"
-	"path"
-
 	"github.com/Github-Aiko/Aiko-Server/src/common/file"
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
 	"github.com/go-acme/lego/v4/certcrypto"
 	"github.com/go-acme/lego/v4/lego"
+	"os"
+	"path"
 )
 
 type Lego struct {

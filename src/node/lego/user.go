@@ -8,12 +8,11 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
-	"os"
-
 	"github.com/Github-Aiko/Aiko-Server/src/common/file"
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/registration"
 	"github.com/goccy/go-json"
+	"os"
 )
 
 type User struct {

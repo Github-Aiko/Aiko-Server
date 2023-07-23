@@ -2,14 +2,13 @@ package lego
 
 import (
 	"fmt"
-	"os"
-	"strings"
-	"time"
-
 	"github.com/go-acme/lego/v4/certcrypto"
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/go-acme/lego/v4/challenge/http01"
 	"github.com/go-acme/lego/v4/providers/dns"
+	"os"
+	"strings"
+	"time"
 )
 
 func (l *Lego) SetProvider() error {

@@ -2,17 +2,15 @@ package limiter
 
 import (
 	"errors"
-	"fmt"
 	"regexp"
 	"sync"
 	"time"
-
-	log "github.com/sirupsen/logrus"
 
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
 	"github.com/Github-Aiko/Aiko-Server/src/common/format"
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
 	"github.com/juju/ratelimit"
+	log "github.com/sirupsen/logrus"
 	"github.com/xtls/xray-core/common/task"
 )
 
@@ -34,7 +32,7 @@ func Init() {
 }
 
 type Limiter struct {
-	Rules         []*regexp.Regexp
+	DomainRules   []*regexp.Regexp
 	ProtocolRules []string
 	SpeedLimit    int
 	UserLimitInfo *sync.Map    // Key: Uid value: UserLimitInfo
@@ -61,7 +59,6 @@ func AddLimiter(tag string, l *conf.LimitConfig, users []panel.UserInfo) *Limite
 			userLimit := &UserLimitInfo{
 				UID:        users[i].Id,
 				SpeedLimit: users[i].SpeedLimit,
-				ExpireTime: 0,
 			}
 			info.UserLimitInfo.Store(format.UserTag(tag, users[i].Uuid), userLimit)
 		}
@@ -82,11 +79,13 @@ func GetLimiter(tag string) (info *Limiter, err error) {
 	return
 }
 
-func UpdateLimiter(tag string, added []panel.UserInfo, deleted []panel.UserInfo) error {
-	l, err := GetLimiter(tag)
-	if err != nil {
-		return fmt.Errorf("get limit error: %s", err)
-	}
+func DeleteLimiter(tag string) {
+	limitLock.Lock()
+	delete(limiter, tag)
+	limitLock.Unlock()
+}
+
+func (l *Limiter) UpdateUser(tag string, added []panel.UserInfo, deleted []panel.UserInfo) {
 	for i := range deleted {
 		l.UserLimitInfo.Delete(format.UserTag(tag, deleted[i].Uuid))
 	}
@@ -100,13 +99,17 @@ func UpdateLimiter(tag string, added []panel.UserInfo, deleted []panel.UserInfo)
 			l.UserLimitInfo.Store(format.UserTag(tag, added[i].Uuid), userLimit)
 		}
 	}
-	return nil
 }
 
-func DeleteLimiter(tag string) {
-	limitLock.Lock()
-	delete(limiter, tag)
-	limitLock.Unlock()
+func (l *Limiter) UpdateDynamicSpeedLimit(tag, uuid string, limit int, expire time.Time) error {
+	if v, ok := l.UserLimitInfo.Load(format.UserTag(tag, uuid)); ok {
+		info := v.(*UserLimitInfo)
+		info.DynamicSpeedLimit = limit
+		info.ExpireTime = expire.Unix()
+	} else {
+		return errors.New("not found")
+	}
+	return nil
 }
 
 func (l *Limiter) CheckLimit(email string, ip string, isTcp bool) (Bucket *ratelimit.Bucket, Reject bool) {

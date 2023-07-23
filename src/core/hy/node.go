@@ -3,7 +3,6 @@ package hy
 import (
 	"errors"
 	"fmt"
-
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
 	"github.com/Github-Aiko/Aiko-Server/src/limiter"

@@ -2,9 +2,8 @@ package panel
 
 import (
 	"fmt"
-	path2 "path"
-
 	"github.com/go-resty/resty/v2"
+	path2 "path"
 )
 
 // Debug set the client debug for client

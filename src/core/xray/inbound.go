@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
@@ -70,7 +71,8 @@ func buildInbound(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, tag s
 			return nil, errors.New("the CertConfig is not vail")
 		}
 		switch config.CertConfig.CertMode {
-		case "none", "": // disable
+		case "none", "":
+			break // disable
 		case "reality":
 			// Reality
 			in.StreamSetting.Security = "reality"
@@ -88,37 +90,43 @@ func buildInbound(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, tag s
 				MaxTimeDiff:  config.CertConfig.RealityConfig.MaxTimeDiff,
 				ShortIds:     config.CertConfig.RealityConfig.ShortIds,
 			}
+			break
+		case "remote":
+			if nodeInfo.ExtraConfig.EnableReality == "true" {
+				rc := nodeInfo.ExtraConfig.RealityConfig
+				in.StreamSetting.Security = "reality"
+				d, err := json.Marshal(rc.Dest)
+				if err != nil {
+					return nil, fmt.Errorf("marshal reality dest error: %s", err)
+				}
+				Xver, _ := strconv.ParseUint(rc.Xver, 10, 64)
+				MaxTimeDiff, _ := strconv.ParseUint(rc.Xver, 10, 64)
+				in.StreamSetting.REALITYSettings = &coreConf.REALITYConfig{
+					Dest:         d,
+					Xver:         Xver,
+					ServerNames:  rc.ServerNames,
+					PrivateKey:   rc.PrivateKey,
+					MinClientVer: rc.MinClientVer,
+					MaxClientVer: rc.MaxClientVer,
+					MaxTimeDiff:  MaxTimeDiff,
+					ShortIds:     rc.ShortIds,
+				}
+				break
+			}
 		default:
-			// Normal tls
-			in.StreamSetting.Security = "tls"
-			in.StreamSetting.TLSSettings = &coreConf.TLSConfig{
-				Certs: []*coreConf.TLSCertConfig{
-					{
-						CertFile:     config.CertConfig.CertFile,
-						KeyFile:      config.CertConfig.KeyFile,
-						OcspStapling: 3600,
+			{
+				// Normal tls
+				in.StreamSetting.Security = "tls"
+				in.StreamSetting.TLSSettings = &coreConf.TLSConfig{
+					Certs: []*coreConf.TLSCertConfig{
+						{
+							CertFile:     config.CertConfig.CertFile,
+							KeyFile:      config.CertConfig.KeyFile,
+							OcspStapling: 3600,
+						},
 					},
-				},
-				RejectUnknownSNI: config.CertConfig.RejectUnknownSni,
-			}
-		}
-		// use remote reality replace local config
-		if nodeInfo.ExtraConfig.EnableReality {
-			rc := nodeInfo.ExtraConfig.RealityConfig
-			in.StreamSetting.Security = "reality"
-			d, err := json.Marshal(rc.Dest)
-			if err != nil {
-				return nil, fmt.Errorf("marshal reality dest error: %s", err)
-			}
-			in.StreamSetting.REALITYSettings = &coreConf.REALITYConfig{
-				Dest:         d,
-				Xver:         rc.Xver,
-				ServerNames:  rc.ServerNames,
-				PrivateKey:   rc.PrivateKey,
-				MinClientVer: rc.MinClientVer,
-				MaxClientVer: rc.MaxClientVer,
-				MaxTimeDiff:  rc.MaxTimeDiff,
-				ShortIds:     rc.ShortIds,
+					RejectUnknownSNI: config.CertConfig.RejectUnknownSni,
+				}
 			}
 		}
 	}
@@ -137,8 +145,7 @@ func buildInbound(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, tag s
 }
 
 func buildV2ray(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, inbound *coreConf.InboundDetourConfig) error {
-	if config.XrayOptions.EnableVless ||
-		nodeInfo.ExtraConfig.EnableVless {
+	if nodeInfo.ExtraConfig.EnableVless == "true" {
 		//Set vless
 		inbound.Protocol = "vless"
 		if config.XrayOptions.EnableFallback {

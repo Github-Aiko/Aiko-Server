@@ -4,13 +4,12 @@ import (
 	"os"
 	"sync"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
 	vCore "github.com/Github-Aiko/Aiko-Server/src/core"
 	"github.com/Github-Aiko/Aiko-Server/src/core/xray/app/dispatcher"
 	_ "github.com/Github-Aiko/Aiko-Server/src/core/xray/distro/all"
 	"github.com/goccy/go-json"
+	log "github.com/sirupsen/logrus"
 	"github.com/xtls/xray-core/app/proxyman"
 	"github.com/xtls/xray-core/app/stats"
 	"github.com/xtls/xray-core/common/serial"
@@ -62,6 +61,7 @@ func getCore(c *conf.XrayConfig) *core.Instance {
 	coreLogConfig.ErrorLog = c.LogConfig.ErrorPath
 	// DNS config
 	coreDnsConfig := &coreConf.DNSConfig{}
+	os.Setenv("XRAY_DNS_PATH", "")
 	if c.DnsConfigPath != "" {
 		if f, err := os.Open(c.DnsConfigPath); err != nil {
 			log.WithField("err", err).Panic("Failed to read DNS config file")
@@ -70,6 +70,7 @@ func getCore(c *conf.XrayConfig) *core.Instance {
 				log.WithField("err", err).Panic("Failed to unmarshal DNS config")
 			}
 		}
+		os.Setenv("XRAY_DNS_PATH", c.DnsConfigPath)
 	}
 	dnsConfig, err := coreDnsConfig.Build()
 	if err != nil {
@@ -88,16 +89,16 @@ func getCore(c *conf.XrayConfig) *core.Instance {
 	}
 	routeConfig, err := coreRouterConfig.Build()
 	if err != nil {
-		log.WithField("err", err).Panic("Failed to understand DNS config, Please check: https://xtls.github.io/config/dns.html for help")
+		log.WithField("err", err).Panic("Failed to understand Routing config  Please check: https://xtls.github.io/config/routing.html")
 	}
 	// Custom Inbound config
 	var coreCustomInboundConfig []coreConf.InboundDetourConfig
 	if c.InboundConfigPath != "" {
 		if f, err := os.Open(c.InboundConfigPath); err != nil {
-			log.WithField("err", err).Panic("Failed to read Routing config file")
+			log.WithField("err", err).Panic("Failed to read Custom Inbound config file")
 		} else {
 			if err = json.NewDecoder(f).Decode(&coreCustomInboundConfig); err != nil {
-				log.WithField("err", err).Panic("Failed to unmarshal Routing config")
+				log.WithField("err", err).Panic("Failed to unmarshal Custom Inbound config")
 			}
 		}
 	}
@@ -105,7 +106,7 @@ func getCore(c *conf.XrayConfig) *core.Instance {
 	for _, config := range coreCustomInboundConfig {
 		oc, err := config.Build()
 		if err != nil {
-			log.WithField("err", err).Panic("Failed to understand Routing config  Please check: https://xtls.github.io/config/routing.html")
+			log.WithField("err", err).Panic("Failed to understand Inbound config, Please check: https://xtls.github.io/config/inbound.html for help")
 		}
 		inBoundConfig = append(inBoundConfig, oc)
 	}
@@ -113,10 +114,10 @@ func getCore(c *conf.XrayConfig) *core.Instance {
 	var coreCustomOutboundConfig []coreConf.OutboundDetourConfig
 	if c.OutboundConfigPath != "" {
 		if f, err := os.Open(c.OutboundConfigPath); err != nil {
-			log.WithField("err", err).Panic("Failed to read Custom Inbound config file")
+			log.WithField("err", err).Panic("Failed to read Custom Outbound config file")
 		} else {
 			if err = json.NewDecoder(f).Decode(&coreCustomOutboundConfig); err != nil {
-				log.WithField("err", err).Panic("Failed to unmarshal Custom Inbound config")
+				log.WithField("err", err).Panic("Failed to unmarshal Custom Outbound config")
 			}
 		}
 	}
@@ -124,7 +125,7 @@ func getCore(c *conf.XrayConfig) *core.Instance {
 	for _, config := range coreCustomOutboundConfig {
 		oc, err := config.Build()
 		if err != nil {
-			log.WithField("err", err).Panic("Failed to understand Inbound config, Please check: https://xtls.github.io/config/inbound.html for help")
+			log.WithField("err", err).Panic("Failed to understand Outbound config, Please check: https://xtls.github.io/config/outbound.html for help")
 		}
 		outBoundConfig = append(outBoundConfig, oc)
 	}
@@ -150,10 +151,9 @@ func getCore(c *conf.XrayConfig) *core.Instance {
 	}
 	server, err := core.New(config)
 	if err != nil {
-		log.WithField("err", err).Panic("Failed to create core instance")
+		log.WithField("err", err).Panic("failed to create instance")
 	}
 	log.Info("Xray Core Version: ", core.Version())
-
 	return server
 }
 

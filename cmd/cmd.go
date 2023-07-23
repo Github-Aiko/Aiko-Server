@@ -8,7 +8,7 @@ import (
 )
 
 var command = &cobra.Command{
-	Use: "Aiko-Server",
+	Use: "AikoR",
 }
 
 func Run() {

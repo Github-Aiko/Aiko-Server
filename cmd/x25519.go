@@ -4,6 +4,9 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
+	"strings"
+
+	"github.com/Github-Aiko/Aiko-Server/src/common/crypt"
 
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/curve25519"
@@ -29,25 +32,35 @@ func executeX25519() {
 	}()
 	var privateKey []byte
 	var publicKey []byte
-	privateKey = make([]byte, curve25519.ScalarSize)
-	if _, err = rand.Read(privateKey); err != nil {
-		output = Err("read rand error: ", err)
-		return
+	var yes, key string
+	fmt.Println("Do you want to generate a key based on the node information?(Y/n)")
+	fmt.Scan(&yes)
+	if strings.ToLower(yes) == "y" {
+		var temp string
+		fmt.Println("Please enter the node ID:")
+		fmt.Scan(&temp)
+		key = temp
+		fmt.Println("Please enter the node type:")
+		fmt.Scan(&temp)
+		key += strings.ToLower(temp)
+		fmt.Println("Please enter the Token:")
+		fmt.Scan(&temp)
+		key += temp
+		privateKey = crypt.GenX25519Private([]byte(key))
+	} else {
+		privateKey = make([]byte, curve25519.ScalarSize)
+		if _, err = rand.Read(privateKey); err != nil {
+			output = Err("read rand error: ", err)
+			return
+		}
 	}
-
-	// Modify random bytes using algorithm described at:
-	// https://cr.yp.to/ecdh.html.
-	privateKey[0] &= 248
-	privateKey[31] &= 127
-	privateKey[31] |= 64
-
 	if publicKey, err = curve25519.X25519(privateKey, curve25519.Basepoint); err != nil {
 		output = Err("gen X25519 error: ", err)
 		return
 	}
-
+	p := base64.RawURLEncoding.EncodeToString(privateKey)
 	output = fmt.Sprint("Private key: ",
-		base64.RawURLEncoding.EncodeToString(privateKey),
+		p,
 		"\nPublic key: ",
 		base64.RawURLEncoding.EncodeToString(publicKey))
 }

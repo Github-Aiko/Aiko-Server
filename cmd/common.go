@@ -2,9 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/Github-Aiko/Aiko-Server/src/common/exec"
+	"strings"
 )
 
 const (
@@ -15,7 +14,7 @@ const (
 )
 
 func checkRunning() (bool, error) {
-	o, err := exec.RunCommandByShell("systemctl status Aiko-Server | grep Active")
+	o, err := exec.RunCommandByShell("systemctl status AikoR | grep Active")
 	if err != nil {
 		return false, err
 	}

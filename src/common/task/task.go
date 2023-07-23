@@ -31,18 +31,15 @@ func (t *Task) checkedExecute(first bool) error {
 
 	t.access.Lock()
 	defer t.access.Unlock()
-
 	if first {
 		if err := t.Execute(); err != nil {
 			t.running = false
 			return err
 		}
 	}
-
 	if !t.running {
 		return nil
 	}
-
 	t.timer = time.AfterFunc(t.Interval, func() {
 		t.checkedExecute(true)
 	})
@@ -65,7 +62,6 @@ func (t *Task) Start(first bool) error {
 		t.access.Unlock()
 		return err
 	}
-
 	return nil
 }
 

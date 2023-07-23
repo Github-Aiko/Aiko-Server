@@ -1,22 +1,19 @@
 package panel
 
 import (
+	"github.com/Github-Aiko/Aiko-Server/conf"
 	"log"
 	"testing"
-
-	"github.com/Github-Aiko/Aiko-Server/src/conf"
 )
 
 var client *Client
 
 func init() {
 	c, err := New(&conf.ApiConfig{
-		APIHost:      "http://127.0.0.1",
-		NodeID:       1,
-		Key:          "token",
-		NodeType:     "hysteria",
-		Timeout:      0,
-		RuleListPath: "",
+		APIHost:  "http://127.0.0.1",
+		Key:      "token",
+		NodeType: "V2ray",
+		NodeID:   1,
 	})
 	if err != nil {
 		log.Panic(err)
@@ -25,6 +22,7 @@ func init() {
 }
 
 func TestClient_GetNodeInfo(t *testing.T) {
+	log.Println(client.GetNodeInfo())
 	log.Println(client.GetNodeInfo())
 }
 

@@ -10,7 +10,7 @@ import (
 
 var (
 	version  = "TempVersion" //use ldflags replace
-	codename = "Aiko-Server"
+	codename = "AikoR"
 	intro    = "A V2board backend based on multi core"
 )
 
@@ -30,5 +30,6 @@ func showVersion() {
 	fmt.Printf("%s %s (%s) \n", codename, version, intro)
 	fmt.Printf("Supported cores: %s\n", strings.Join(vCore.RegisteredCore(), ", "))
 	// Warning
-	fmt.Println(Warn("This version need V2board version >= 1.7.0."))
+	fmt.Println(Warn("This Backend Support Only AikoPanel."))
+	fmt.Println(Warn("The version have many changed for config, please check your config file"))
 }
