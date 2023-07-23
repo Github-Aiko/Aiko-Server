@@ -6,7 +6,7 @@ import (
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
 	"github.com/Github-Aiko/Aiko-Server/src/common/task"
 	vCore "github.com/Github-Aiko/Aiko-Server/src/core"
-	"github.com/Github-Aiko/Aiko-Server/limiter"
+	"github.com/Github-Aiko/Aiko-Server/src/limiter"
 	log "github.com/sirupsen/logrus"
 )
 
