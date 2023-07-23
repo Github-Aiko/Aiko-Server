@@ -3,8 +3,8 @@ name: Build and Release
 on:
   workflow_dispatch:
   push:
-    branches:
-      - master
+    tags:
+      - v*
     paths:
       - "**/*.go"
       - "go.mod"
