@@ -2,11 +2,12 @@ package iprecoder
 
 import (
 	"errors"
+	"time"
+
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
 	"github.com/Github-Aiko/Aiko-Server/src/limiter"
 	"github.com/go-resty/resty/v2"
 	"github.com/goccy/go-json"
-	"time"
 )
 
 type Recorder struct {

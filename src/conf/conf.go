@@ -18,7 +18,7 @@ func New() *Conf {
 			Type: "xray",
 			XrayConfig: &XrayConfig{
 				LogConfig:          NewLogConfig(),
-				AssetPath:          "/etc/Aiko-Server/",
+				AssetPath:          "/etc/V2bX/",
 				DnsConfigPath:      "",
 				InboundConfigPath:  "",
 				OutboundConfigPath: "",

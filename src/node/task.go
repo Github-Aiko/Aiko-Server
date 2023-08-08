@@ -32,7 +32,7 @@ func (c *Controller) startTasks(node *panel.NodeInfo) {
 		default:
 			c.renewCertPeriodic = &task.Task{
 				Interval: time.Hour * 24,
-				Execute:  c.reportUserTrafficTask,
+				Execute:  c.renewCertTask,
 			}
 			log.WithField("tag", c.tag).Info("Start renew cert")
 			// delay to start renewCert
@@ -41,9 +41,9 @@ func (c *Controller) startTasks(node *panel.NodeInfo) {
 	}
 	if c.LimitConfig.EnableDynamicSpeedLimit {
 		c.traffic = make(map[string]int64)
-		c.renewCertPeriodic = &task.Task{
-			Interval: time.Duration(c.LimitConfig.DynamicSpeedLimitConfig.Periodic) * time.Minute,
-			Execute:  c.reportUserTrafficTask,
+		c.dynamicSpeedLimitPeriodic = &task.Task{
+			Interval: time.Duration(c.LimitConfig.DynamicSpeedLimitConfig.Periodic) * time.Second,
+			Execute:  c.SpeedChecker,
 		}
 	}
 }
@@ -144,6 +144,7 @@ func (c *Controller) nodeInfoMonitor() (err error) {
 			_ = c.userReportPeriodic.Start(false)
 		}
 		log.WithField("tag", c.tag).Infof("Added %d new users", len(c.userList))
+		c.info = newNodeInfo
 		// exit
 		return nil
 	}
@@ -169,6 +170,7 @@ func (c *Controller) nodeInfoMonitor() (err error) {
 		_, err = c.server.AddUsers(&vCore.AddUsersParams{
 			Tag:      c.tag,
 			Config:   c.ControllerConfig,
+			NodeInfo: c.info,
 			UserInfo: added,
 		})
 		if err != nil {
@@ -204,7 +206,7 @@ func (c *Controller) nodeInfoMonitor() (err error) {
 	return nil
 }
 
-func (c *Controller) SpeedChecker() {
+func (c *Controller) SpeedChecker() error {
 	for u, t := range c.traffic {
 		if t >= c.LimitConfig.DynamicSpeedLimitConfig.Traffic {
 			err := c.limiter.UpdateDynamicSpeedLimit(c.tag, u,
@@ -214,4 +216,5 @@ func (c *Controller) SpeedChecker() {
 			delete(c.traffic, u)
 		}
 	}
+	return nil
 }

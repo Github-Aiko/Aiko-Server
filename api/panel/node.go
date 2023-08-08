@@ -97,7 +97,7 @@ type RealityConfig struct {
 }
 
 func (c *Client) GetNodeInfo() (node *NodeInfo, err error) {
-	const path = "/api/v1/server/Aiko/config"
+	const path = "/api/v1/server/UniProxy/config"
 	r, err := c.client.
 		R().
 		SetHeader("If-None-Match", c.nodeEtag).
@@ -202,7 +202,8 @@ func (c *Client) GetNodeInfo() (node *NodeInfo, err error) {
 			if node.ExtraConfig.RealityConfig == nil {
 				node.ExtraConfig.EnableReality = "false"
 			} else {
-				key := crypt.GenX25519Private([]byte(strconv.Itoa(c.NodeId) + c.NodeType + c.Token))
+				key := crypt.GenX25519Private([]byte(strconv.Itoa(c.NodeId) + c.NodeType + c.Token +
+					node.ExtraConfig.RealityConfig.PrivateKey))
 				node.ExtraConfig.RealityConfig.PrivateKey = base64.RawURLEncoding.EncodeToString(key)
 			}
 		}

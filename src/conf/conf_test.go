@@ -7,12 +7,12 @@ import (
 
 func TestConf_LoadFromPath(t *testing.T) {
 	c := New()
-	t.Log(c.LoadFromPath("../example/config.yml.example"))
+	t.Log(c.LoadFromPath("../Aiko-Server/aiko.yml.example"))
 }
 
 func TestConf_Watch(t *testing.T) {
 	c := New()
-	log.Println(c.Watch("../example/config.yml.example", func() {
+	log.Println(c.Watch("../Aiko-Server/aiko.yml.example", "../Aiko-Server/aiko.yml", func() {
 		log.Println(1)
 	}))
 	select {}

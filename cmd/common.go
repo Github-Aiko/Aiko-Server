@@ -2,8 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/Github-Aiko/Aiko-Server/src/common/exec"
 	"strings"
+
+	"github.com/Github-Aiko/Aiko-Server/src/common/exec"
 )
 
 const (

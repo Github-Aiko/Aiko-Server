@@ -141,11 +141,11 @@ func file_config_proto_rawDescGZIP() []byte {
 
 var file_config_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_config_proto_goTypes = []interface{}{
-	(*SessionConfig)(nil), // 0: Aiko-Server.core.app.dispatcher.SessionConfig
-	(*Config)(nil),        // 1: Aiko-Server.core.app.dispatcher.Config
+	(*SessionConfig)(nil), // 0: v2bx.core.app.dispatcher.SessionConfig
+	(*Config)(nil),        // 1: v2bx.core.app.dispatcher.Config
 }
 var file_config_proto_depIdxs = []int32{
-	0, // 0: Aiko-Server.core.app.dispatcher.Config.settings:type_name -> Aiko-Server.core.app.dispatcher.SessionConfig
+	0, // 0: v2bx.core.app.dispatcher.Config.settings:type_name -> v2bx.core.app.dispatcher.SessionConfig
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

@@ -2,13 +2,14 @@ package hy
 
 import (
 	"encoding/base64"
+	"log"
+	"testing"
+	"time"
+
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
 	"github.com/Github-Aiko/Aiko-Server/src/limiter"
 	"github.com/sirupsen/logrus"
-	"log"
-	"testing"
-	"time"
 )
 
 func TestServer(t *testing.T) {

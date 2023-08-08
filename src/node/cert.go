@@ -2,22 +2,23 @@ package node
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/Github-Aiko/Aiko-Server/src/common/file"
 	"github.com/Github-Aiko/Aiko-Server/src/node/lego"
-	"log"
 )
 
-func (c *Controller) renewCertTask() {
+func (c *Controller) renewCertTask() error {
 	l, err := lego.New(c.CertConfig)
 	if err != nil {
 		log.Print("new lego error: ", err)
-		return
+		return nil
 	}
 	err = l.RenewCert()
 	if err != nil {
 		log.Print("renew cert error: ", err)
-		return
 	}
+	return nil
 }
 
 func (c *Controller) requestCert() error {

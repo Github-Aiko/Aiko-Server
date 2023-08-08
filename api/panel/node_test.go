@@ -1,9 +1,10 @@
 package panel
 
 import (
-	"github.com/Github-Aiko/Aiko-Server/conf"
 	"log"
 	"testing"
+
+	"github.com/Github-Aiko/Aiko-Server/src/conf"
 )
 
 var client *Client

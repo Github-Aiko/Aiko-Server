@@ -2,7 +2,6 @@ package xray
 
 import (
 	"crypto/rand"
-	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
@@ -81,7 +80,7 @@ func buildInbound(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, tag s
 			if err != nil {
 				return nil, fmt.Errorf("marshal reality dest error: %s", err)
 			}
-			if len(in.StreamSetting.REALITYSettings.ShortIds) == 0 {
+			if len(config.CertConfig.RealityConfig.ShortIds) == 0 {
 				config.CertConfig.RealityConfig.ShortIds = []string{""}
 			}
 			in.StreamSetting.REALITYSettings = &coreConf.REALITYConfig{
@@ -108,9 +107,6 @@ func buildInbound(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, tag s
 				}
 				Xver, _ := strconv.ParseUint(rc.Xver, 10, 64)
 				MaxTimeDiff, _ := strconv.ParseUint(rc.Xver, 10, 64)
-				data := sha256.Sum256([]byte(strconv.Itoa(nodeInfo.Id) + nodeInfo.Type))
- 				var ShortIds []string
- 				ShortIds = append(ShortIds, hex.EncodeToString(data[:16]))
 				in.StreamSetting.REALITYSettings = &coreConf.REALITYConfig{
 					Dest:         d,
 					Xver:         Xver,
@@ -119,7 +115,7 @@ func buildInbound(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, tag s
 					MinClientVer: rc.MinClientVer,
 					MaxClientVer: rc.MaxClientVer,
 					MaxTimeDiff:  MaxTimeDiff,
-					ShortIds:     ShortIds,
+					ShortIds:     rc.ShortIds,
 				}
 				break
 			}

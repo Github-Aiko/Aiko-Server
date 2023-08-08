@@ -85,7 +85,7 @@ func (s *Server) runServer(node *panel.NodeInfo, c *conf.ControllerConfig) error
 	}
 	// Resolve preference
 	if len(c.HyOptions.ResolvePreference) > 0 {
-		pref, err := transport.ResolvePreferenceFromString(c.HyOptions.ResolvePreference)
+		pref, err := transport.ResolvePreferenceFromString(c.HyOptions.Resolver)
 		if err != nil {
 			logrus.WithFields(logrus.Fields{
 				"error": err,

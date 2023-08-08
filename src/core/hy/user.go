@@ -3,6 +3,7 @@ package hy
 import (
 	"encoding/base64"
 	"errors"
+
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
 	"github.com/Github-Aiko/Aiko-Server/src/core"
 )
