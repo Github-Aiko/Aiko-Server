@@ -5,7 +5,7 @@ COPY . .
 ENV CGO_ENABLED=0
 RUN go mod download && \
     go env -w GOFLAGS=-buildvcs=false && \
-    go build -v -o build_assets/Aiko-Server -tags "xray hy" -trimpath -ldflags "-X 'github.com/Github-Aiko/Aiko-Server/cmd.version=$version' -s -w -buildid="
+    go build -v -o build_assets/Aiko-Server -tags "sing with_reality_server with_quic" -trimpath -ldflags "-X 'github.com/Github-Aiko/Aiko-Server/cmd.version=$version' -s -w -buildid="
 
 # Release
 FROM alpine:latest 
