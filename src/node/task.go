@@ -28,7 +28,7 @@ func (c *Controller) startTasks(node *panel.NodeInfo) {
 	_ = c.userReportPeriodic.Start(false)
 	if node.Tls {
 		switch c.CertConfig.CertMode {
-		case "reality", "none", "":
+		case "reality", "none", "", "file":
 		default:
 			c.renewCertPeriodic = &task.Task{
 				Interval: time.Hour * 24,
@@ -68,6 +68,7 @@ func (c *Controller) nodeInfoMonitor() (err error) {
 		return nil
 	}
 	if newNodeInfo != nil {
+		c.info = newNodeInfo
 		// nodeInfo changed
 		if newUserInfo != nil {
 			c.userList = newUserInfo
@@ -89,7 +90,7 @@ func (c *Controller) nodeInfoMonitor() (err error) {
 		c.tag = c.buildNodeTag(newNodeInfo)
 		l := limiter.AddLimiter(c.tag, &c.LimitConfig, c.userList)
 		// check cert
-		if newNodeInfo.Tls || newNodeInfo.Type == "hysteria" {
+		if newNodeInfo.Tls || newNodeInfo.Type == "hysteria" || newNodeInfo.Type == "tuic" {
 			err = c.requestCert()
 			if err != nil {
 				log.WithFields(log.Fields{
@@ -100,7 +101,7 @@ func (c *Controller) nodeInfoMonitor() (err error) {
 			}
 		}
 		// add new node
-		err = c.server.AddNode(c.tag, newNodeInfo, c.ControllerConfig)
+		err = c.server.AddNode(c.tag, newNodeInfo, c.Options)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"tag": c.tag,
@@ -110,7 +111,7 @@ func (c *Controller) nodeInfoMonitor() (err error) {
 		}
 		_, err = c.server.AddUsers(&vCore.AddUsersParams{
 			Tag:      c.tag,
-			Config:   c.ControllerConfig,
+			Config:   c.Options,
 			UserInfo: c.userList,
 			NodeInfo: newNodeInfo,
 		})
@@ -144,7 +145,6 @@ func (c *Controller) nodeInfoMonitor() (err error) {
 			_ = c.userReportPeriodic.Start(false)
 		}
 		log.WithField("tag", c.tag).Infof("Added %d new users", len(c.userList))
-		c.info = newNodeInfo
 		// exit
 		return nil
 	}
@@ -169,7 +169,7 @@ func (c *Controller) nodeInfoMonitor() (err error) {
 		// have added users
 		_, err = c.server.AddUsers(&vCore.AddUsersParams{
 			Tag:      c.tag,
-			Config:   c.ControllerConfig,
+			Config:   c.Options,
 			NodeInfo: c.info,
 			UserInfo: added,
 		})

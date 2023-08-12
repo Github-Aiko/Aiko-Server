@@ -15,7 +15,7 @@ func TestRedis_SyncOnlineIp(t *testing.T) {
 		Db:       0,
 	})
 	users, err := r.SyncOnlineIp([]limiter.UserIpList{
-		{Uid: 1, IpList: []string{"5.5.5.5", "4.4.4.4"}},
+		{1, []string{"5.5.5.5", "4.4.4.4"}},
 	})
 	if err != nil {
 		t.Fatal(err)

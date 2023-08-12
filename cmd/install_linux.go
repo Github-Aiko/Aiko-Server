@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/Github-Aiko/Aiko-Server/src/common/exec"
-	"github.com/spf13/cobra"
 	"os"
 	"strings"
+
+	"github.com/Github-Aiko/Aiko-Server/src/common/exec"
+	"github.com/spf13/cobra"
 )
 
 var targetVersion string

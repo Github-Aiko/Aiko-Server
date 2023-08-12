@@ -1,11 +1,12 @@
 package cmd
 
 import (
-	log "github.com/sirupsen/logrus"
 	"os"
 	"os/signal"
 	"runtime"
 	"syscall"
+
+	log "github.com/sirupsen/logrus"
 
 	vCore "github.com/Github-Aiko/Aiko-Server/src/core"
 
@@ -64,9 +65,10 @@ func serverHandle(_ *cobra.Command, _ []string) {
 		log.WithField("err", err).Error("Run nodes failed")
 		return
 	}
-	dns := os.Getenv("XRAY_DNS_PATH")
+	xdns := os.Getenv("XRAY_DNS_PATH")
+	sdns := os.Getenv("SING_DNS_PATH")
 	if watch {
-		err = c.Watch(config, dns, func() {
+		err = c.Watch(config, xdns, sdns, func() {
 			nodes.Close()
 			err = vc.Close()
 			if err != nil {

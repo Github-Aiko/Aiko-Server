@@ -15,15 +15,21 @@ CoreConfig:
       UplinkOnly: 2 # Time limit when the connection downstream is closed, Second
       DownlinkOnly: 4 # Time limit when the connection is closed after the uplink is closed, Second
       BufferSize: 64 # The internal cache size of each connection, kB
+  SingConfig:
+    Log:
+      Disable: false
+      Level: error
+      Output:
+
 Nodes:
   - ApiConfig:
       ApiHost: "http://127.0.0.1:667"
       ApiKey: "123"
       NodeID: 41
-      NodeType: V2ray # Node type: V2ray, Shadowsocks, Trojan, Hysteria
+      NodeType: V2ray # Node type: V2ray, Shadowsocks, Trojan
       Timeout: 30 # Timeout for the api request
       RuleListPath: # /etc/Aiko-Server/rulelist Path to local rulelist file
-    ControllerConfig:
+    Options:
       ListenIP: 0.0.0.0 # IP address you want to listen
       SendIP: 0.0.0.0 # IP address you want to send pacakage
       XrayOptions:
@@ -42,6 +48,26 @@ Nodes:
         Resolver: "udp://1.1.1.1:53" # DNS resolver address
         ResolvePreference: 64 # DNS IPv4/IPv6 preference. Available options: "64" (IPv6 first, fallback to IPv4), "46" (IPv4 first, fallback to IPv6), "6" (IPv6 only), "4" (IPv4 only)
         SendDevice: "eth0" # Bind device for outbound connections (usually requires root)
+      SingOptions:
+        EnableTFO: false
+        EnableTUIC: false
+        CongestionControl: bbr
+        SniffEnabled: false
+        DomainStrategy: ipv4_only
+        SniffOverrideDestination: false
+        EnableProxyProtocol: false
+        FallBackConfigs:
+          FallBack:
+            server: "127.0.0.1"
+            server_port: 8080
+          FallBackForALPN:
+            - http/1.1:
+                server: "127.0.0.1"
+                server_port: 8081
+            - h3:
+                server: "127.0.0.1"
+                server_port: 8082
+
       LimitConfig:
         EnableRealtime: false # Check device limit on real time
         SpeedLimit: 0 # Mbps, Local settings will replace remote settings, 0 means disable

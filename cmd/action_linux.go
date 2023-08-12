@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/Github-Aiko/Aiko-Server/src/common/exec"
 	"github.com/spf13/cobra"
-	"time"
 )
 
 var (

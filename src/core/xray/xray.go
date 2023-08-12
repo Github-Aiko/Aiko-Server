@@ -39,7 +39,7 @@ func New(c *conf.CoreConfig) (vCore.Core, error) {
 	return &Core{Server: getCore(c.XrayConfig)}, nil
 }
 
-func parseConnectionConfig(c *conf.ConnectionConfig) (policy *coreConf.Policy) {
+func parseConnectionConfig(c *conf.XrayConnectionConfig) (policy *coreConf.Policy) {
 	policy = &coreConf.Policy{
 		StatsUserUplink:   true,
 		StatsUserDownlink: true,
@@ -61,6 +61,7 @@ func getCore(c *conf.XrayConfig) *core.Instance {
 	coreLogConfig.ErrorLog = c.LogConfig.ErrorPath
 	// DNS config
 	coreDnsConfig := &coreConf.DNSConfig{}
+	os.Setenv("CORE_RUNNING", "")
 	os.Setenv("XRAY_DNS_PATH", "")
 	if c.DnsConfigPath != "" {
 		if f, err := os.Open(c.DnsConfigPath); err != nil {
@@ -154,6 +155,7 @@ func getCore(c *conf.XrayConfig) *core.Instance {
 		log.WithField("err", err).Panic("failed to create instance")
 	}
 	log.Info("Xray Core Version: ", core.Version())
+	os.Setenv("CORE_RUNNING", "XRAY")
 	return server
 }
 
@@ -183,6 +185,7 @@ func (c *Core) Close() error {
 	if err != nil {
 		return err
 	}
+	os.Setenv("XRAY_RUNNING", "")
 	return nil
 }
 
@@ -191,5 +194,6 @@ func (c *Core) Protocols() []string {
 		"v2ray",
 		"shadowsocks",
 		"trojan",
+		"vless",
 	}
 }

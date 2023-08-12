@@ -3,10 +3,9 @@ package node
 import (
 	"fmt"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/Github-Aiko/Aiko-Server/src/common/file"
 	"github.com/Github-Aiko/Aiko-Server/src/node/lego"
+	log "github.com/sirupsen/logrus"
 )
 
 func (c *Controller) renewCertTask() error {

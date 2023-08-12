@@ -16,16 +16,9 @@ type Conf struct {
 func New() *Conf {
 	return &Conf{
 		CoreConfig: CoreConfig{
-			Type: "xray",
-			XrayConfig: &XrayConfig{
-				LogConfig:          NewLogConfig(),
-				AssetPath:          "/etc/Aiko-Server/",
-				DnsConfigPath:      "",
-				InboundConfigPath:  "",
-				OutboundConfigPath: "",
-				RouteConfigPath:    "",
-				ConnectionConfig:   NewConnectionConfig(),
-			},
+			Type:       "xray",
+			XrayConfig: NewXrayConfig(),
+			SingConfig: NewSingConfig(),
 		},
 		NodesConfig: []*NodeConfig{},
 	}
@@ -44,11 +37,6 @@ func (p *Conf) LoadFromPath(filePath string) error {
 	err = yaml.Unmarshal(content, p)
 	if err != nil {
 		return fmt.Errorf("decode config error: %s", err)
-	}
-	old := &OldConfig{}
-	err = yaml.Unmarshal(content, old)
-	if err == nil {
-		migrateOldConfig(p, old)
 	}
 	return nil
 }

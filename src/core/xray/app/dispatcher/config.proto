@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package Aiko-Server.core.app.dispatcher;
 option csharp_namespace = "Aiko-Server.core.app.dispatcher";
-option go_package = "github.com/Github-Aiko/Aiko-Server/src/core/xray/app/dispatcher";
+option go_package = "github.com/Github-Aiko/Aiko-Server/core/xray/app/dispatcher";
 option java_package = "com.Aiko-Server.core.app.dispatcher";
 option java_multiple_files = true;
 
