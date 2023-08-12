@@ -17,7 +17,7 @@ import (
 )
 
 // BuildInbound build Inbound config for different protocol
-func buildInbound(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, tag string) (*core.InboundHandlerConfig, error) {
+func buildInbound(config *conf.Options, nodeInfo *panel.NodeInfo, tag string) (*core.InboundHandlerConfig, error) {
 	in := &coreConf.InboundDetourConfig{}
 	// Set network protocol
 	t := coreConf.TransportProtocol(nodeInfo.Network)
@@ -26,6 +26,8 @@ func buildInbound(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, tag s
 	switch nodeInfo.Type {
 	case "v2ray":
 		err = buildV2ray(config, nodeInfo, in)
+	case "vless":
+		err = buildVLESS(config, nodeInfo, in)
 	case "trojan":
 		err = buildTrojan(config, in)
 	case "shadowsocks":
@@ -150,9 +152,10 @@ func buildInbound(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, tag s
 	return in.Build()
 }
 
-func buildV2ray(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, inbound *coreConf.InboundDetourConfig) error {
+func buildV2ray(config *conf.Options, nodeInfo *panel.NodeInfo, inbound *coreConf.InboundDetourConfig) error {
 	if nodeInfo.ExtraConfig.EnableVless == "true" {
 		//Set vless
+		nodeInfo.Type = "vless"
 		inbound.Protocol = "vless"
 		if config.XrayOptions.EnableFallback {
 			// Set fallback
@@ -212,8 +215,59 @@ func buildV2ray(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, inbound
 	}
 	return nil
 }
+func buildVLESS(config *conf.Options, nodeInfo *panel.NodeInfo, inbound *coreConf.InboundDetourConfig) error {
+	//Set vless
+	inbound.Protocol = "vless"
+	if config.XrayOptions.EnableFallback {
+		// Set fallback
+		fallbackConfigs, err := buildVlessFallbacks(config.XrayOptions.FallBackConfigs)
+		if err != nil {
+			return err
+		}
+		s, err := json.Marshal(&coreConf.VLessInboundConfig{
+			Decryption: "none",
+			Fallbacks:  fallbackConfigs,
+		})
+		if err != nil {
+			return fmt.Errorf("marshal vless fallback config error: %s", err)
+		}
+		inbound.Settings = (*json.RawMessage)(&s)
+	} else {
+		var err error
+		s, err := json.Marshal(&coreConf.VLessInboundConfig{
+			Decryption: "none",
+		})
+		if err != nil {
+			return fmt.Errorf("marshal vless config error: %s", err)
+		}
+		inbound.Settings = (*json.RawMessage)(&s)
+	}
+	if len(nodeInfo.NetworkSettings) == 0 {
+		return nil
+	}
+	switch nodeInfo.Network {
+	case "tcp":
+		err := json.Unmarshal(nodeInfo.NetworkSettings, &inbound.StreamSetting.TCPSettings)
+		if err != nil {
+			return fmt.Errorf("unmarshal tcp settings error: %s", err)
+		}
+	case "ws":
+		err := json.Unmarshal(nodeInfo.NetworkSettings, &inbound.StreamSetting.WSSettings)
+		if err != nil {
+			return fmt.Errorf("unmarshal ws settings error: %s", err)
+		}
+	case "grpc":
+		err := json.Unmarshal(nodeInfo.NetworkSettings, &inbound.StreamSetting.GRPCConfig)
+		if err != nil {
+			return fmt.Errorf("unmarshal grpc settings error: %s", err)
+		}
+	default:
+		return errors.New("the network type is not vail")
+	}
+	return nil
+}
 
-func buildTrojan(config *conf.ControllerConfig, inbound *coreConf.InboundDetourConfig) error {
+func buildTrojan(config *conf.Options, inbound *coreConf.InboundDetourConfig) error {
 	inbound.Protocol = "trojan"
 	if config.XrayOptions.EnableFallback {
 		// Set fallback
@@ -237,7 +291,7 @@ func buildTrojan(config *conf.ControllerConfig, inbound *coreConf.InboundDetourC
 	return nil
 }
 
-func buildShadowsocks(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, inbound *coreConf.InboundDetourConfig) error {
+func buildShadowsocks(config *conf.Options, nodeInfo *panel.NodeInfo, inbound *coreConf.InboundDetourConfig) error {
 	inbound.Protocol = "shadowsocks"
 	settings := &coreConf.ShadowsocksServerConfig{
 		Cipher: nodeInfo.Cipher,
@@ -274,7 +328,7 @@ func buildShadowsocks(config *conf.ControllerConfig, nodeInfo *panel.NodeInfo, i
 	return nil
 }
 
-func buildVlessFallbacks(fallbackConfigs []conf.FallBackConfig) ([]*coreConf.VLessInboundFallback, error) {
+func buildVlessFallbacks(fallbackConfigs []conf.FallBackConfigForXray) ([]*coreConf.VLessInboundFallback, error) {
 	if fallbackConfigs == nil {
 		return nil, fmt.Errorf("you must provide FallBackConfigs")
 	}
@@ -299,7 +353,7 @@ func buildVlessFallbacks(fallbackConfigs []conf.FallBackConfig) ([]*coreConf.VLe
 	return vlessFallBacks, nil
 }
 
-func buildTrojanFallbacks(fallbackConfigs []conf.FallBackConfig) ([]*coreConf.TrojanInboundFallback, error) {
+func buildTrojanFallbacks(fallbackConfigs []conf.FallBackConfigForXray) ([]*coreConf.TrojanInboundFallback, error) {
 	if fallbackConfigs == nil {
 		return nil, fmt.Errorf("you must provide FallBackConfigs")
 	}

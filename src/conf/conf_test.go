@@ -2,18 +2,16 @@ package conf
 
 import (
 	"log"
+	"strings"
 	"testing"
 )
 
 func TestConf_LoadFromPath(t *testing.T) {
 	c := New()
-	t.Log(c.LoadFromPath("../Aiko-Server/aiko.yml.example"))
+	t.Log(c.LoadFromPath("../example/config.yml.example"))
 }
 
 func TestConf_Watch(t *testing.T) {
-	c := New()
-	log.Println(c.Watch("../Aiko-Server/aiko.yml.example", "../Aiko-Server/aiko.yml", func() {
-		log.Println(1)
-	}))
-	select {}
+	//c := New()
+	log.Println(strings.Split("aaaa", " "))
 }

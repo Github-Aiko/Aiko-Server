@@ -8,22 +8,27 @@ import (
 
 func (l *Limiter) CheckDomainRule(destination string) (reject bool) {
 	// have rule
-	for i := range l.DomainRules {
-		if l.DomainRules[i].MatchString(destination) {
-			reject = true
-			break
+	if l.DomainRules != nil {
+		for i := range l.DomainRules {
+			if l.DomainRules[i].MatchString(destination) {
+				reject = true
+				break
+			}
 		}
 	}
 	return
 }
 
 func (l *Limiter) CheckProtocolRule(protocol string) (reject bool) {
-	for i := range l.ProtocolRules {
-		if l.ProtocolRules[i] == protocol {
-			reject = true
-			break
+	if l.ProtocolRules != nil {
+		for i := range l.ProtocolRules {
+			if l.ProtocolRules[i] == protocol {
+				reject = true
+				break
+			}
 		}
 	}
+
 	return
 }
 
