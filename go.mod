@@ -3,7 +3,7 @@ module github.com/Github-Aiko/Aiko-Server
 go 1.21
 
 require (
-	github.com/beevik/ntp v1.2.0
+	github.com/beevik/ntp v1.3.0
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-acme/lego/v4 v4.13.2
