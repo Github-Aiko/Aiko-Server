@@ -1,8 +1,6 @@
 module github.com/Github-Aiko/Aiko-Server
 
-go 1.21
-
-toolchain go1.21.0
+go 1.20
 
 require (
 	github.com/AikoPanel/Xray-core v1.8.4
