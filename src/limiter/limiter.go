@@ -6,12 +6,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/AikoPanel/Xray-core/common/task"
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
 	"github.com/Github-Aiko/Aiko-Server/src/common/format"
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
 	"github.com/juju/ratelimit"
 	log "github.com/sirupsen/logrus"
-	"github.com/xtls/xray-core/common/task"
 )
 
 var limitLock sync.RWMutex

@@ -1,6 +1,6 @@
 package dispatcher
 
-//go:generate go run github.com/xtls/xray-core/common/errors/errorgen
+//go:generate go run github.com/AikoPanel/Xray-core/common/errors/errorgen
 
 import (
 	"context"
@@ -9,24 +9,24 @@ import (
 	"sync"
 	"time"
 
+	routingSession "github.com/AikoPanel/Xray-core/features/routing/session"
 	"github.com/Github-Aiko/Aiko-Server/src/common/rate"
 	"github.com/Github-Aiko/Aiko-Server/src/limiter"
-	routingSession "github.com/xtls/xray-core/features/routing/session"
 
-	"github.com/xtls/xray-core/common"
-	"github.com/xtls/xray-core/common/buf"
-	"github.com/xtls/xray-core/common/log"
-	"github.com/xtls/xray-core/common/net"
-	"github.com/xtls/xray-core/common/protocol"
-	"github.com/xtls/xray-core/common/session"
-	"github.com/xtls/xray-core/core"
-	"github.com/xtls/xray-core/features/dns"
-	"github.com/xtls/xray-core/features/outbound"
-	"github.com/xtls/xray-core/features/policy"
-	"github.com/xtls/xray-core/features/routing"
-	"github.com/xtls/xray-core/features/stats"
-	"github.com/xtls/xray-core/transport"
-	"github.com/xtls/xray-core/transport/pipe"
+	"github.com/AikoPanel/Xray-core/common"
+	"github.com/AikoPanel/Xray-core/common/buf"
+	"github.com/AikoPanel/Xray-core/common/log"
+	"github.com/AikoPanel/Xray-core/common/net"
+	"github.com/AikoPanel/Xray-core/common/protocol"
+	"github.com/AikoPanel/Xray-core/common/session"
+	"github.com/AikoPanel/Xray-core/core"
+	"github.com/AikoPanel/Xray-core/features/dns"
+	"github.com/AikoPanel/Xray-core/features/outbound"
+	"github.com/AikoPanel/Xray-core/features/policy"
+	"github.com/AikoPanel/Xray-core/features/routing"
+	"github.com/AikoPanel/Xray-core/features/stats"
+	"github.com/AikoPanel/Xray-core/transport"
+	"github.com/AikoPanel/Xray-core/transport/pipe"
 )
 
 var errSniffingTimeout = newError("timeout on sniffing")

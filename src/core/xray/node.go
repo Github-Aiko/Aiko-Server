@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/AikoPanel/Xray-core/core"
+	"github.com/AikoPanel/Xray-core/features/inbound"
+	"github.com/AikoPanel/Xray-core/features/outbound"
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
-	"github.com/xtls/xray-core/core"
-	"github.com/xtls/xray-core/features/inbound"
-	"github.com/xtls/xray-core/features/outbound"
 )
 
 func (c *Core) AddNode(tag string, info *panel.NodeInfo, config *conf.ControllerConfig) error {

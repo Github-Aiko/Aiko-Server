@@ -1,11 +1,11 @@
 package xray
 
 import (
+	"github.com/AikoPanel/Xray-core/common/protocol"
+	"github.com/AikoPanel/Xray-core/common/serial"
+	"github.com/AikoPanel/Xray-core/proxy/trojan"
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
 	"github.com/Github-Aiko/Aiko-Server/src/common/format"
-	"github.com/xtls/xray-core/common/protocol"
-	"github.com/xtls/xray-core/common/serial"
-	"github.com/xtls/xray-core/proxy/trojan"
 )
 
 func buildTrojanUsers(tag string, userInfo []panel.UserInfo) (users []*protocol.User) {

@@ -1,9 +1,9 @@
 package dispatcher
 
 import (
-	"github.com/xtls/xray-core/common"
-	"github.com/xtls/xray-core/common/buf"
-	"github.com/xtls/xray-core/features/stats"
+	"github.com/AikoPanel/Xray-core/common"
+	"github.com/AikoPanel/Xray-core/common/buf"
+	"github.com/AikoPanel/Xray-core/features/stats"
 )
 
 type SizeStatWriter struct {

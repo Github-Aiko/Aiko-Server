@@ -1,9 +1,9 @@
 package rate
 
 import (
+	"github.com/AikoPanel/Xray-core/common"
+	"github.com/AikoPanel/Xray-core/common/buf"
 	"github.com/juju/ratelimit"
-	"github.com/xtls/xray-core/common"
-	"github.com/xtls/xray-core/common/buf"
 )
 
 type Writer struct {

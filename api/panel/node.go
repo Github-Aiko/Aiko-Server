@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
+	coreConf "github.com/AikoPanel/Xray-core/infra/conf"
 	"github.com/Github-Aiko/Aiko-Server/src/common/crypt"
 	"github.com/goccy/go-json"
 	log "github.com/sirupsen/logrus"
-	coreConf "github.com/xtls/xray-core/infra/conf"
 )
 
 type CommonNodeRsp struct {

@@ -4,12 +4,12 @@ import (
 	"encoding/base64"
 	"strings"
 
+	"github.com/AikoPanel/Xray-core/common/protocol"
+	"github.com/AikoPanel/Xray-core/common/serial"
+	"github.com/AikoPanel/Xray-core/proxy/shadowsocks"
+	"github.com/AikoPanel/Xray-core/proxy/shadowsocks_2022"
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
 	"github.com/Github-Aiko/Aiko-Server/src/common/format"
-	"github.com/xtls/xray-core/common/protocol"
-	"github.com/xtls/xray-core/common/serial"
-	"github.com/xtls/xray-core/proxy/shadowsocks"
-	"github.com/xtls/xray-core/proxy/shadowsocks_2022"
 )
 
 func buildSSUsers(tag string, userInfo []panel.UserInfo, cypher string, serverKey string) (users []*protocol.User) {

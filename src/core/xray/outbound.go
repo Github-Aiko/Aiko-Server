@@ -3,11 +3,11 @@ package xray
 import (
 	"fmt"
 
+	"github.com/AikoPanel/Xray-core/common/net"
+	"github.com/AikoPanel/Xray-core/core"
+	"github.com/AikoPanel/Xray-core/infra/conf"
 	conf2 "github.com/Github-Aiko/Aiko-Server/src/conf"
 	"github.com/goccy/go-json"
-	"github.com/xtls/xray-core/common/net"
-	"github.com/xtls/xray-core/core"
-	"github.com/xtls/xray-core/infra/conf"
 )
 
 // BuildOutbound build freedom outbund config for addoutbound

@@ -8,12 +8,12 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/AikoPanel/Xray-core/common/net"
+	"github.com/AikoPanel/Xray-core/core"
+	coreConf "github.com/AikoPanel/Xray-core/infra/conf"
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
 	"github.com/Github-Aiko/Aiko-Server/src/conf"
 	"github.com/goccy/go-json"
-	"github.com/xtls/xray-core/common/net"
-	"github.com/xtls/xray-core/core"
-	coreConf "github.com/xtls/xray-core/infra/conf"
 )
 
 // BuildInbound build Inbound config for different protocol
