@@ -1,17 +1,17 @@
 # Build go
-FROM golang:1.21-alpine AS builder
+FROM golang:1.19-alpine AS builder
 WORKDIR /app
 COPY . .
 ENV CGO_ENABLED=0
-RUN go mod download
-ARG VERSION
-RUN go build -v -o build_assets/Aiko-Server -trimpath -ldflags "-X 'github.com/AikoPanel/Aiko-Server/cmd.version=$VERSION' -s -w -buildid="
+RUN go mod download && \
+    go env -w GOFLAGS=-buildvcs=false && \
+    go build -v -o build_assets/Aiko-Server -tags "xray hy" -trimpath -ldflags "-X 'github.com/Github-Aiko/Aiko-Server/cmd.version=$version' -s -w -buildid="
 
 # Release
-FROM alpine
-RUN apk --update --no-cache add tzdata ca-certificates \
-    && cp /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime
-RUN mkdir /etc/Aiko-Server/
-COPY --from=builder /app/build_assets/Aiko-Server /usr/local/bin/Aiko-Server
+FROM alpine:latest 
+RUN apk --update --no-cache add tzdata ca-certificates && \
+    cp /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime && \
+    mkdir /etc/Aiko-Server/
+COPY --from=builder /app/Aiko-Server /usr/local/bin
 
-CMD ["sh", "-c", "Aiko-Server server --config /etc/Aiko-Server/aiko.yml"]
+CMD ["sh", "-c", "Aiko-Server server"]
