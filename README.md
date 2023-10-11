@@ -62,21 +62,21 @@ This project is for my personal learning, development and maintenance only, I do
 ## Software installation - release
 
 ```
-wget --no-check-certificate -O install.sh https://raw.githubusercontent.com/Github-Aiko/Aiko-Server-Script/master/install.sh && bash install.sh
+wget --no-check-certificate -O install.sh https://raw.githubusercontent.com/AikoPanel/Aiko-Server-Script/master/install_v2.sh && bash install.sh
 ```
 
 ### Docker installation
 
 ```
-docker pull aikocute/aiko-server:latest && docker run --restart=always --name aiko-server -d -v ${PATCH_TO_CONFIG}/aiko.yml:/etc/Aiko-Server/aiko.yml --network=host aikocute/aiko-server:latest
+docker pull aikocute/aiko-server:latest && docker run --restart=always --name aiko-server -d -v ${PATCH_TO_CONFIG}/config.json:/etc/Aiko-Server/config.json --network=host aikocute/aiko-server:latest
 ```
 
 ### Docker-compose installation
 
-Step 1 : Create Config File `aiko.yml` in `/etc/Aiko-Server/config/aiko.yml`
+Step 1 : Create Config File `config.json` in `/etc/Aiko-Server/config.json`
 
 ```
-mkdir -p /etc/Aiko-Server/config && cd /etc/Aiko-Server/config && wget https://raw.githubusercontent.com/Github-Aiko/Aiko-Server-Script/master/config/aiko.yml
+mkdir -p /etc/Aiko-Server/config && cd /etc/Aiko-Server/config && wget https://raw.githubusercontent.com/Github-Aiko/Aiko-Server-Script/master/config.json
 ```
 
 Step 2 : Create `docker-compose.yml` in `/etc/Aiko-Server/docker-compose.yml`
