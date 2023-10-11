@@ -1,15 +1,6 @@
 package conf
 
 type LogConfig struct {
-	Level      string `yaml:"Level"`
-	AccessPath string `yaml:"AccessPath"`
-	ErrorPath  string `yaml:"ErrorPath"`
-}
-
-func NewLogConfig() *LogConfig {
-	return &LogConfig{
-		Level:      "warning",
-		AccessPath: "",
-		ErrorPath:  "",
-	}
+	Level  string `json:"Level"`
+	Output string `json:"Output"`
 }

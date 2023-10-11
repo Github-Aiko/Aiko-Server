@@ -1,112 +1,136 @@
 package conf
 
+import (
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"strings"
+
+	"github.com/Github-Aiko/Aiko-Server/src/common/json5"
+	"github.com/goccy/go-json"
+)
+
 type NodeConfig struct {
-	ApiConfig        *ApiConfig        `yaml:"ApiConfig"`
-	ControllerConfig *ControllerConfig `yaml:"ControllerConfig"`
+	ApiConfig ApiConfig `json:"-"`
+	Options   Options   `json:"-"`
+}
+
+type rawNodeConfig struct {
+	Include string          `json:"Include"`
+	ApiRaw  json.RawMessage `json:"ApiConfig"`
+	OptRaw  json.RawMessage `json:"Options"`
 }
 
 type ApiConfig struct {
-	APIHost      string `yaml:"ApiHost"`
-	NodeID       int    `yaml:"NodeID"`
-	Key          string `yaml:"ApiKey"`
-	NodeType     string `yaml:"NodeType"`
-	Timeout      int    `yaml:"Timeout"`
-	RuleListPath string `yaml:"RuleListPath"`
+	APIHost      string `json:"ApiHost"`
+	NodeID       int    `json:"NodeID"`
+	Key          string `json:"ApiKey"`
+	NodeType     string `json:"NodeType"`
+	Timeout      int    `json:"Timeout"`
+	RuleListPath string `json:"RuleListPath"`
 }
 
-type ControllerConfig struct {
-	ListenIP    string      `yaml:"ListenIP"`
-	SendIP      string      `yaml:"SendIP"`
-	XrayOptions XrayOptions `yaml:"XrayOptions"`
-	HyOptions   HyOptions   `yaml:"HyOptions"`
-	LimitConfig LimitConfig `yaml:"LimitConfig"`
-	CertConfig  *CertConfig `yaml:"CertConfig"`
+func (n *NodeConfig) UnmarshalJSON(data []byte) (err error) {
+	rn := rawNodeConfig{}
+	err = json.Unmarshal(data, &rn)
+	if err != nil {
+		return err
+	}
+	if len(rn.Include) != 0 {
+		file, _ := strings.CutPrefix(rn.Include, ":")
+		switch file {
+		case "http", "https":
+			rsp, err := http.Get(file)
+			if err != nil {
+				return err
+			}
+			defer rsp.Body.Close()
+			data, err = io.ReadAll(json5.NewTrimNodeReader(rsp.Body))
+			if err != nil {
+				return fmt.Errorf("open include file error: %s", err)
+			}
+		default:
+			f, err := os.Open(rn.Include)
+			if err != nil {
+				return fmt.Errorf("open include file error: %s", err)
+			}
+			defer f.Close()
+			data, err = io.ReadAll(json5.NewTrimNodeReader(f))
+			if err != nil {
+				return fmt.Errorf("open include file error: %s", err)
+			}
+		}
+		err = json.Unmarshal(data, &rn)
+		if err != nil {
+			return fmt.Errorf("unmarshal include file error: %s", err)
+		}
+	}
+
+	n.ApiConfig = ApiConfig{
+		APIHost: "http://127.0.0.1",
+		Timeout: 30,
+	}
+	if len(rn.ApiRaw) > 0 {
+		err = json.Unmarshal(rn.ApiRaw, &n.ApiConfig)
+		if err != nil {
+			return
+		}
+	} else {
+		err = json.Unmarshal(data, &n.ApiConfig)
+		if err != nil {
+			return
+		}
+	}
+
+	n.Options = Options{
+		ListenIP:   "0.0.0.0",
+		SendIP:     "0.0.0.0",
+		CertConfig: NewCertConfig(),
+	}
+	if len(rn.OptRaw) > 0 {
+		err = json.Unmarshal(rn.OptRaw, &n.Options)
+		if err != nil {
+			return
+		}
+	} else {
+		err = json.Unmarshal(data, &n.Options)
+		if err != nil {
+			return
+		}
+	}
+	return
 }
 
-type RealityConfig struct {
-	Dest         interface{} `yaml:"Dest" json:"Dest"`
-	Xver         uint64      `yaml:"Xver" json:"Xver"`
-	ServerNames  []string    `yaml:"ServerNames" json:"ServerNames"`
-	PrivateKey   string      `yaml:"PrivateKey" json:"PrivateKey"`
-	MinClientVer string      `yaml:"MinClientVer" json:"MinClientVer"`
-	MaxClientVer string      `yaml:"MaxClientVer" json:"MaxClientVer"`
-	MaxTimeDiff  uint64      `yaml:"MaxTimeDiff" json:"MaxTimeDiff"`
-	ShortIds     []string    `yaml:"ShortIds" json:"ShortIds"`
+type Options struct {
+	Name        string          `json:"Name"`
+	Core        string          `json:"Core"`
+	CoreName    string          `json:"CoreName"`
+	ListenIP    string          `json:"ListenIP"`
+	SendIP      string          `json:"SendIP"`
+	LimitConfig LimitConfig     `json:"LimitConfig"`
+	RawOptions  json.RawMessage `json:"RawOptions"`
+	XrayOptions *XrayOptions    `json:"XrayOptions"`
+	SingOptions *SingOptions    `json:"SingOptions"`
+	CertConfig  *CertConfig     `json:"CertConfig"`
 }
 
-type XrayOptions struct {
-	EnableProxyProtocol bool             `yaml:"EnableProxyProtocol"`
-	EnableDNS           bool             `yaml:"EnableDNS"`
-	DNSType             string           `yaml:"DNSType"`
-	EnableUot           bool             `yaml:"EnableUot"`
-	EnableTFO           bool             `yaml:"EnableTFO"`
-	DisableIVCheck      bool             `yaml:"DisableIVCheck"`
-	DisableSniffing     bool             `yaml:"DisableSniffing"`
-	EnableFallback      bool             `yaml:"EnableFallback"`
-	FallBackConfigs     []FallBackConfig `yaml:"FallBackConfigs"`
-}
-
-type HyOptions struct {
-	Resolver          string `yaml:"Resolver"`
-	ResolvePreference string `yaml:"ResolvePreference"`
-	SendDevice        string `yaml:"SendDevice"`
-}
-
-type LimitConfig struct {
-	EnableRealtime          bool                     `yaml:"EnableRealtime"`
-	SpeedLimit              int                      `yaml:"SpeedLimit"`
-	IPLimit                 int                      `yaml:"DeviceLimit"`
-	ConnLimit               int                      `yaml:"ConnLimit"`
-	EnableIpRecorder        bool                     `yaml:"EnableIpRecorder"`
-	IpRecorderConfig        *IpReportConfig          `yaml:"IpRecorderConfig"`
-	EnableDynamicSpeedLimit bool                     `yaml:"EnableDynamicSpeedLimit"`
-	DynamicSpeedLimitConfig *DynamicSpeedLimitConfig `yaml:"DynamicSpeedLimitConfig"`
-}
-
-type FallBackConfig struct {
-	SNI              string `yaml:"SNI"`
-	Alpn             string `yaml:"Alpn"`
-	Path             string `yaml:"Path"`
-	Dest             string `yaml:"Dest"`
-	ProxyProtocolVer uint64 `yaml:"ProxyProtocolVer"`
-}
-
-type RecorderConfig struct {
-	Url     string `yaml:"Url"`
-	Token   string `yaml:"Token"`
-	Timeout int    `yaml:"Timeout"`
-}
-
-type RedisConfig struct {
-	Address  string `yaml:"Address"`
-	Password string `yaml:"Password"`
-	Db       int    `yaml:"Db"`
-	Expiry   int    `json:"Expiry"`
-}
-
-type IpReportConfig struct {
-	Periodic       int             `yaml:"Periodic"`
-	Type           string          `yaml:"Type"`
-	RecorderConfig *RecorderConfig `yaml:"RecorderConfig"`
-	RedisConfig    *RedisConfig    `yaml:"RedisConfig"`
-	EnableIpSync   bool            `yaml:"EnableIpSync"`
-}
-
-type DynamicSpeedLimitConfig struct {
-	Periodic   int   `yaml:"Periodic"`
-	Traffic    int64 `yaml:"Traffic"`
-	SpeedLimit int   `yaml:"SpeedLimit"`
-	ExpireTime int   `yaml:"ExpireTime"`
-}
-
-type CertConfig struct {
-	CertMode         string            `yaml:"CertMode"` // none, file, http, dns
-	RejectUnknownSni bool              `yaml:"RejectUnknownSni"`
-	CertDomain       string            `yaml:"CertDomain"`
-	CertFile         string            `yaml:"CertFile"`
-	KeyFile          string            `yaml:"KeyFile"`
-	Provider         string            `yaml:"Provider"` // alidns, cloudflare, gandi, godaddy....
-	Email            string            `yaml:"Email"`
-	DNSEnv           map[string]string `yaml:"DNSEnv"`
-	RealityConfig    *RealityConfig    `yaml:"RealityConfig"`
+func (o *Options) UnmarshalJSON(data []byte) error {
+	type opt Options
+	err := json.Unmarshal(data, (*opt)(o))
+	if err != nil {
+		return err
+	}
+	switch o.Core {
+	case "xray":
+		o.XrayOptions = NewXrayOptions()
+		return json.Unmarshal(data, o.XrayOptions)
+	case "sing":
+		o.SingOptions = NewSingOptions()
+		return json.Unmarshal(data, o.SingOptions)
+	default:
+		o.Core = ""
+		o.RawOptions = data
+	}
+	return nil
 }

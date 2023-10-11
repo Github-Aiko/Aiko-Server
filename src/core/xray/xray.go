@@ -4,10 +4,10 @@ import (
 	"os"
 	"sync"
 
-	"github.com/Github-Aiko/Aiko-Server/src/conf"
-	vCore "github.com/Github-Aiko/Aiko-Server/src/core"
-	"github.com/Github-Aiko/Aiko-Server/src/core/xray/app/dispatcher"
-	_ "github.com/Github-Aiko/Aiko-Server/src/core/xray/distro/all"
+	"github.com/Github-Aiko/Aiko-Server/conf"
+	vCore "github.com/Github-Aiko/Aiko-Server/core"
+	"github.com/Github-Aiko/Aiko-Server/core/xray/app/dispatcher"
+	_ "github.com/Github-Aiko/Aiko-Server/core/xray/distro/all"
 	"github.com/goccy/go-json"
 	log "github.com/sirupsen/logrus"
 	"github.com/xtls/xray-core/app/proxyman"
@@ -39,7 +39,7 @@ func New(c *conf.CoreConfig) (vCore.Core, error) {
 	return &Core{Server: getCore(c.XrayConfig)}, nil
 }
 
-func parseConnectionConfig(c *conf.ConnectionConfig) (policy *coreConf.Policy) {
+func parseConnectionConfig(c *conf.XrayConnectionConfig) (policy *coreConf.Policy) {
 	policy = &coreConf.Policy{
 		StatsUserUplink:   true,
 		StatsUserDownlink: true,
@@ -67,7 +67,7 @@ func getCore(c *conf.XrayConfig) *core.Instance {
 			log.WithField("err", err).Panic("Failed to read DNS config file")
 		} else {
 			if err = json.NewDecoder(f).Decode(coreDnsConfig); err != nil {
-				log.WithField("err", err).Panic("Failed to unmarshal DNS config")
+				log.WithField("err", err).Error("Failed to unmarshal DNS config")
 			}
 		}
 		os.Setenv("XRAY_DNS_PATH", c.DnsConfigPath)
@@ -188,8 +188,13 @@ func (c *Core) Close() error {
 
 func (c *Core) Protocols() []string {
 	return []string{
-		"v2ray",
+		"vmess",
+		"vless",
 		"shadowsocks",
 		"trojan",
 	}
+}
+
+func (c *Core) Type() string {
+	return "xray"
 }

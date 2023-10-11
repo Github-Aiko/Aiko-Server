@@ -1,34 +1,30 @@
 package conf
 
+import (
+	"encoding/json"
+)
+
 type CoreConfig struct {
-	Type       string      `yaml:"Type"`
-	XrayConfig *XrayConfig `yaml:"XrayConfig"`
+	Type       string      `json:"Type"`
+	Name       string      `json:"Name"`
+	XrayConfig *XrayConfig `json:"-"`
+	SingConfig *SingConfig `json:"-"`
 }
 
-type XrayConfig struct {
-	LogConfig          *LogConfig        `yaml:"Log"`
-	AssetPath          string            `yaml:"AssetPath"`
-	DnsConfigPath      string            `yaml:"DnsConfigPath"`
-	RouteConfigPath    string            `yaml:"RouteConfigPath"`
-	ConnectionConfig   *ConnectionConfig `yaml:"ConnectionConfig"`
-	InboundConfigPath  string            `yaml:"InboundConfigPath"`
-	OutboundConfigPath string            `yaml:"OutboundConfigPath"`
-}
+type _CoreConfig CoreConfig
 
-type ConnectionConfig struct {
-	Handshake    uint32 `yaml:"handshake"`
-	ConnIdle     uint32 `yaml:"connIdle"`
-	UplinkOnly   uint32 `yaml:"uplinkOnly"`
-	DownlinkOnly uint32 `yaml:"downlinkOnly"`
-	BufferSize   int32  `yaml:"bufferSize"`
-}
-
-func NewConnectionConfig() *ConnectionConfig {
-	return &ConnectionConfig{
-		Handshake:    4,
-		ConnIdle:     30,
-		UplinkOnly:   2,
-		DownlinkOnly: 4,
-		BufferSize:   64,
+func (c *CoreConfig) UnmarshalJSON(b []byte) error {
+	err := json.Unmarshal(b, (*_CoreConfig)(c))
+	if err != nil {
+		return err
 	}
+	switch c.Type {
+	case "xray":
+		c.XrayConfig = NewXrayConfig()
+		return json.Unmarshal(b, c.XrayConfig)
+	case "sing":
+		c.SingConfig = NewSingConfig()
+		return json.Unmarshal(b, c.SingConfig)
+	}
+	return nil
 }

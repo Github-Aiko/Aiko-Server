@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/Github-Aiko/Aiko-Server/src/common/exec"
-	"github.com/spf13/cobra"
 	"os"
 	"strings"
+
+	"github.com/Github-Aiko/Aiko-Server/src/common/exec"
+	"github.com/spf13/cobra"
 )
 
 var targetVersion string
@@ -16,7 +17,7 @@ var (
 		Short: "Update Aiko-Server version",
 		Run: func(_ *cobra.Command, _ []string) {
 			exec.RunCommandStd("bash",
-				"<(curl -Ls https://raw.githubusercontent.com/Github-Aiko/Aiko-Server-script/master/install.sh)",
+				"<(curl -Ls https://raw.githubusercontents.com/Github-Aiko/Aiko-Server-script/master/install.sh)",
 				targetVersion)
 		},
 		Args: cobra.NoArgs,
@@ -41,7 +42,7 @@ func uninstallHandle(_ *cobra.Command, _ []string) {
 	if strings.ToLower(yes) != "y" {
 		fmt.Println("Uninstallation canceled")
 	}
-	_, err := exec.RunCommandByShell("systemctl stop Aiko-Server && systemctl disable Aiko-Server")
+	_, err := exec.RunCommandByShell("systemctl stop Aiko-Server&&systemctl disable Aiko-Server")
 	if err != nil {
 		fmt.Println(Err("exec cmd error: ", err))
 		fmt.Println(Err("Uninstallation failed"))

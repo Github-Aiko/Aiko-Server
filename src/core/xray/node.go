@@ -3,15 +3,23 @@ package xray
 import (
 	"context"
 	"fmt"
-
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
-	"github.com/Github-Aiko/Aiko-Server/src/conf"
+	"github.com/Github-Aiko/Aiko-Server/conf"
 	"github.com/xtls/xray-core/core"
 	"github.com/xtls/xray-core/features/inbound"
 	"github.com/xtls/xray-core/features/outbound"
 )
 
-func (c *Core) AddNode(tag string, info *panel.NodeInfo, config *conf.ControllerConfig) error {
+type DNSConfig struct {
+	Servers []interface{} `json:"servers"`
+	Tag     string        `json:"tag"`
+}
+
+func (c *Core) AddNode(tag string, info *panel.NodeInfo, config *conf.Options) error {
+	err := updateDNSConfig(info)
+	if err != nil {
+		return fmt.Errorf("build dns error: %s", err)
+	}
 	inboundConfig, err := buildInbound(config, info, tag)
 	if err != nil {
 		return fmt.Errorf("build inbound error: %s", err)

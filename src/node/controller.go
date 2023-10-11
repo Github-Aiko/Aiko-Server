@@ -27,15 +27,15 @@ type Controller struct {
 	renewCertPeriodic         *task.Task
 	dynamicSpeedLimitPeriodic *task.Task
 	onlineIpReportPeriodic    *task.Task
-	*conf.ControllerConfig
+	*conf.Options
 }
 
 // NewController return a Node controller with default parameters.
-func NewController(server vCore.Core, api *panel.Client, config *conf.ControllerConfig) *Controller {
+func NewController(server vCore.Core, api *panel.Client, config *conf.Options) *Controller {
 	controller := &Controller{
-		server:           server,
-		ControllerConfig: config,
-		apiClient:        api,
+		server:    server,
+		Options:   config,
+		apiClient: api,
 	}
 	return controller
 }
@@ -56,7 +56,11 @@ func (c *Controller) Start() error {
 	if len(c.userList) == 0 {
 		return errors.New("add users error: not have any user")
 	}
-	c.tag = c.buildNodeTag(node)
+	if len(c.Options.Name) == 0 {
+		c.tag = c.buildNodeTag(node)
+	} else {
+		c.tag = c.Options.Name
+	}
 
 	// add limiter
 	l := limiter.AddLimiter(c.tag, &c.LimitConfig, c.userList)
@@ -65,21 +69,20 @@ func (c *Controller) Start() error {
 		return fmt.Errorf("update rule error: %s", err)
 	}
 	c.limiter = l
-	if node.Tls || node.Type == "hysteria" {
+	if node.Security == panel.Tls {
 		err = c.requestCert()
 		if err != nil {
 			return fmt.Errorf("request cert error: %s", err)
 		}
 	}
 	// Add new tag
-	err = c.server.AddNode(c.tag, node, c.ControllerConfig)
+	err = c.server.AddNode(c.tag, node, c.Options)
 	if err != nil {
 		return fmt.Errorf("add new node error: %s", err)
 	}
 	added, err := c.server.AddUsers(&vCore.AddUsersParams{
 		Tag:      c.tag,
-		Config:   c.ControllerConfig,
-		UserInfo: c.userList,
+		Users:    c.userList,
 		NodeInfo: node,
 	})
 	if err != nil {
@@ -113,5 +116,5 @@ func (c *Controller) Close() error {
 }
 
 func (c *Controller) buildNodeTag(node *panel.NodeInfo) string {
-	return fmt.Sprintf("%s-%s-%d", c.apiClient.APIHost, node.Type, node.Id)
+	return fmt.Sprintf("[%s]-%s:%d", c.apiClient.APIHost, node.Type, node.Id)
 }
