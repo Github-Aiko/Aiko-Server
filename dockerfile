@@ -1,11 +1,12 @@
 # Build go
-FROM golang:1.19-alpine AS builder
+FROM golang:1.21-alpine AS builder
 WORKDIR /app
 COPY . .
 ENV CGO_ENABLED=0
 RUN go mod download && \
     go env -w GOFLAGS=-buildvcs=false && \
-    go build -v -o build_assets/Aiko-Server -tags "xray hy" -trimpath -ldflags "-X 'github.com/Github-Aiko/Aiko-Server/cmd.version=$version' -s -w -buildid="
+    go build -v -o build_assets/Aiko-Server -tags "sing xray with_reality_server with_quic" -trimpath -ldflags "-X 'github.com/Github-Aiko/Aiko-Server/cmd.version=$version' -s -w -buildid="
+
 
 # Release
 FROM alpine:latest 
