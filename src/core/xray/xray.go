@@ -4,7 +4,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/Github-Aiko/Aiko-Server/conf"
+	"github.com/Github-Aiko/Aiko-Server/src/conf"
 	vCore "github.com/Github-Aiko/Aiko-Server/src/core"
 	"github.com/Github-Aiko/Aiko-Server/src/core/xray/app/dispatcher"
 	_ "github.com/Github-Aiko/Aiko-Server/src/core/xray/distro/all"

@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
-	"github.com/Github-Aiko/Aiko-Server/conf"
+	"github.com/Github-Aiko/Aiko-Server/src/conf"
 	"github.com/goccy/go-json"
 	"github.com/xtls/xray-core/common/net"
 	"github.com/xtls/xray-core/core"

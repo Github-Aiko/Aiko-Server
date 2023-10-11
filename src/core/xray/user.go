@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
-	"github.com/Github-Aiko/Aiko-Server/common/format"
-	vCore "github.com/Github-Aiko/Aiko-Server/core"
+	"github.com/Github-Aiko/Aiko-Server/src/common/format"
+	vCore "github.com/Github-Aiko/Aiko-Server/src/core"
 	"github.com/xtls/xray-core/common/protocol"
 	"github.com/xtls/xray-core/proxy"
 )

@@ -3,8 +3,9 @@ package xray
 import (
 	"context"
 	"fmt"
+
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
-	"github.com/Github-Aiko/Aiko-Server/conf"
+	"github.com/Github-Aiko/Aiko-Server/src/conf"
 	"github.com/xtls/xray-core/core"
 	"github.com/xtls/xray-core/features/inbound"
 	"github.com/xtls/xray-core/features/outbound"
