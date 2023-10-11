@@ -5,9 +5,9 @@ import (
 	"sync"
 
 	"github.com/Github-Aiko/Aiko-Server/conf"
-	vCore "github.com/Github-Aiko/Aiko-Server/core"
-	"github.com/Github-Aiko/Aiko-Server/core/xray/app/dispatcher"
-	_ "github.com/Github-Aiko/Aiko-Server/core/xray/distro/all"
+	vCore "github.com/Github-Aiko/Aiko-Server/src/core"
+	"github.com/Github-Aiko/Aiko-Server/src/core/xray/app/dispatcher"
+	_ "github.com/Github-Aiko/Aiko-Server/src/core/xray/distro/all"
 	"github.com/goccy/go-json"
 	log "github.com/sirupsen/logrus"
 	"github.com/xtls/xray-core/app/proxyman"
