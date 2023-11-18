@@ -14,7 +14,7 @@ require (
 	github.com/sagernet/sing-box v1.7.0-beta.3
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
-	github.com/xtls/xray-core v1.8.6-0.20231114151426-f1c81557dcf8
+	github.com/xtls/xray-core v1.8.6
 	golang.org/x/crypto v0.15.0
 	golang.org/x/sys v0.14.0
 	google.golang.org/protobuf v1.31.0
@@ -119,7 +119,7 @@ require (
 	github.com/logrusorgru/aurora v2.0.3+incompatible // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mholt/acmez v1.2.0 // indirect
-	github.com/miekg/dns v1.1.56 // indirect
+	github.com/miekg/dns v1.1.57 // indirect
 	github.com/mimuret/golang-iij-dpf v0.9.1 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
