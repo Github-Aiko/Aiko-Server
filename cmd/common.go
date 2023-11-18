@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Github-Aiko/Aiko-Server/src/common/exec"
+	"github.com/Github-Aiko/Aiko-Server/common/exec"
 )
 
 const (

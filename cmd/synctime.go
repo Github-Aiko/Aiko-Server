@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/Github-Aiko/Aiko-Server/src/common/systime"
+	"github.com/Github-Aiko/Aiko-Server/common/systime"
 	"github.com/beevik/ntp"
 	"github.com/spf13/cobra"
 )

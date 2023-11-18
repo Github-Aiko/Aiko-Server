@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Github-Aiko/Aiko-Server/src/common/crypt"
+	"github.com/Github-Aiko/Aiko-Server/common/crypt"
 	"github.com/goccy/go-json"
 )
 
@@ -33,6 +33,7 @@ type NodeInfo struct {
 	Shadowsocks *ShadowsocksNode
 	Trojan      *TrojanNode
 	Hysteria    *HysteriaNode
+	Hysteria2   *Hysteria2Node
 	Common      *CommonNode
 }
 
@@ -73,6 +74,7 @@ type VAllssNode struct {
 
 type TlsSettings struct {
 	ServerName string `json:"server_name"`
+	Dest       string `json:"dest"`
 	ServerPort string `json:"server_port"`
 	ShortId    string `json:"short_id"`
 	PrivateKey string `json:"private_key"`
@@ -100,6 +102,14 @@ type HysteriaNode struct {
 	Obfs     string `json:"obfs"`
 }
 
+type Hysteria2Node struct {
+	CommonNode
+	UpMbps       int    `json:"up_mbps"`
+	DownMbps     int    `json:"down_mbps"`
+	ObfsType     string `json:"obfs"`
+	ObfsPassword string `json:"obfs-password"`
+}
+
 type RawDNS struct {
 	DNSMap  map[string]map[string]interface{}
 	DNSJson []byte
@@ -111,7 +121,7 @@ type Rules struct {
 }
 
 func (c *Client) GetNodeInfo() (node *NodeInfo, err error) {
-	const path = "/api/v1/server/Aiko/config"
+	const path = "/api/v2/server/Aiko/config"
 	r, err := c.client.
 		R().
 		SetHeader("If-None-Match", c.nodeEtag).
@@ -166,7 +176,7 @@ func (c *Client) GetNodeInfo() (node *NodeInfo, err error) {
 		rsp := &ShadowsocksNode{}
 		err = json.Unmarshal(r.Body(), rsp)
 		if err != nil {
-			return nil, fmt.Errorf("decode v2ray params error: %s", err)
+			return nil, fmt.Errorf("decode shadowsocks params error: %s", err)
 		}
 		cm = &rsp.CommonNode
 		node.Shadowsocks = rsp
@@ -175,7 +185,7 @@ func (c *Client) GetNodeInfo() (node *NodeInfo, err error) {
 		rsp := &TrojanNode{}
 		err = json.Unmarshal(r.Body(), rsp)
 		if err != nil {
-			return nil, fmt.Errorf("decode v2ray params error: %s", err)
+			return nil, fmt.Errorf("decode trojan params error: %s", err)
 		}
 		cm = (*CommonNode)(rsp)
 		node.Trojan = rsp
@@ -184,10 +194,19 @@ func (c *Client) GetNodeInfo() (node *NodeInfo, err error) {
 		rsp := &HysteriaNode{}
 		err = json.Unmarshal(r.Body(), rsp)
 		if err != nil {
-			return nil, fmt.Errorf("decode v2ray params error: %s", err)
+			return nil, fmt.Errorf("decode hysteria params error: %s", err)
 		}
 		cm = &rsp.CommonNode
 		node.Hysteria = rsp
+		node.Security = Tls
+	case "hysteria2":
+		rsp := &Hysteria2Node{}
+		err = json.Unmarshal(r.Body(), rsp)
+		if err != nil {
+			return nil, fmt.Errorf("decode hysteria2 params error: %s", err)
+		}
+		cm = &rsp.CommonNode
+		node.Hysteria2 = rsp
 		node.Security = Tls
 	}
 

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Github-Aiko/Aiko-Server/src/common/crypt"
+	"github.com/Github-Aiko/Aiko-Server/common/crypt"
 
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/curve25519"

@@ -9,20 +9,21 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/Github-Aiko/Aiko-Server/src/conf"
+	"github.com/Github-Aiko/Aiko-Server/conf"
 	"github.com/go-resty/resty/v2"
 )
 
 // Panel is the interface for different panel's api.
 
 type Client struct {
-	client   *resty.Client
-	APIHost  string
-	Token    string
-	NodeType string
-	NodeId   int
-	nodeEtag string
-	userEtag string
+	client           *resty.Client
+	APIHost          string
+	Token            string
+	NodeType         string
+	NodeId           int
+	nodeEtag         string
+	userEtag         string
+	LastReportOnline map[int]int
 }
 
 func New(c *conf.ApiConfig) (*Client, error) {
@@ -52,6 +53,7 @@ func New(c *conf.ApiConfig) (*Client, error) {
 		"trojan",
 		"shadowsocks",
 		"hysteria",
+		"hysteria2",
 		"vless":
 	default:
 		return nil, fmt.Errorf("unsupported Node type: %s", c.NodeType)

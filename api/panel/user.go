@@ -3,8 +3,6 @@ package panel
 import (
 	"fmt"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/goccy/go-json"
 )
 
@@ -14,9 +12,11 @@ type OnlineUser struct {
 }
 
 type UserInfo struct {
-	Id         int    `json:"id"`
-	Uuid       string `json:"uuid"`
-	SpeedLimit int    `json:"speed_limit"`
+	Id          int    `json:"id"`
+	Uuid        string `json:"uuid"`
+	SpeedLimit  int    `json:"speed_limit"`
+	DeviceLimit int    `json:"device_limit"`
+	AliveIp     int    `json:"alive_ip"`
 }
 
 type UserListBody struct {
@@ -26,7 +26,7 @@ type UserListBody struct {
 
 // GetUserList will pull user form sspanel
 func (c *Client) GetUserList() (UserList []UserInfo, err error) {
-	const path = "/api/v1/server/Aiko/user"
+	const path = "/api/v2/server/Aiko/user"
 	r, err := c.client.R().
 		SetHeader("If-None-Match", c.userEtag).
 		Get(path)
@@ -34,7 +34,7 @@ func (c *Client) GetUserList() (UserList []UserInfo, err error) {
 	if err != nil {
 		return nil, err
 	}
-	err = c.checkResponse(r, path, err)
+
 	if r.StatusCode() == 304 {
 		return nil, nil
 	}
@@ -44,7 +44,30 @@ func (c *Client) GetUserList() (UserList []UserInfo, err error) {
 		return nil, fmt.Errorf("unmarshal userlist error: %s", err)
 	}
 	c.userEtag = r.Header().Get("ETag")
-	return userList.Users, nil
+
+	var userinfos []UserInfo
+	var localDeviceLimit int = 0
+	for _, user := range userList.Users {
+		// If there is still device available, add the user
+		if user.DeviceLimit > 0 && user.AliveIp > 0 {
+			lastOnline := 0
+			if v, ok := c.LastReportOnline[user.Id]; ok {
+				lastOnline = v
+			}
+			// If there are any available device.
+			localDeviceLimit = user.DeviceLimit - user.AliveIp + lastOnline
+			if localDeviceLimit > 0 {
+
+			} else if lastOnline > 0 {
+
+			} else {
+				continue
+			}
+		}
+		userinfos = append(userinfos, user)
+	}
+
+	return userinfos, nil
 }
 
 type UserTraffic struct {
@@ -59,7 +82,7 @@ func (c *Client) ReportUserTraffic(userTraffic []UserTraffic) error {
 	for i := range userTraffic {
 		data[userTraffic[i].UID] = []int64{userTraffic[i].Upload, userTraffic[i].Download}
 	}
-	const path = "/api/v1/server/Aiko/push"
+	const path = "/api/v2/server/Aiko/push"
 	r, err := c.client.R().
 		SetBody(data).
 		ForceContentType("application/json").
@@ -68,6 +91,21 @@ func (c *Client) ReportUserTraffic(userTraffic []UserTraffic) error {
 	if err != nil {
 		return err
 	}
-	log.Println(r.String())
+	return nil
+}
+
+func (c *Client) ReportNodeOnlineUsers(data *map[int][]string, reportOnline *map[int]int) error {
+	c.LastReportOnline = *reportOnline
+	const path = "/api/v2/server/Aiko/alive"
+	r, err := c.client.R().
+		SetBody(data).
+		ForceContentType("application/json").
+		Post(path)
+	err = c.checkResponse(r, path, err)
+
+	if err != nil {
+		return nil
+	}
+
 	return nil
 }

@@ -4,7 +4,7 @@ import (
 	"log"
 	"testing"
 
-	"github.com/Github-Aiko/Aiko-Server/src/conf"
+	"github.com/Github-Aiko/Aiko-Server/conf"
 )
 
 var client *Client

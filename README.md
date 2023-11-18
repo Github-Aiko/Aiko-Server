@@ -55,9 +55,9 @@ This project is for my personal learning, development and maintenance only, I do
 
 ## User interface support
 
-| Panel     | v2ray | trojan | shadowsocks | hysteria |
-| --------- | ----- | ------ | ----------- | -------- |
-| AikoPanel | √     | √      | √           | √        |
+| Panel       | v2ray | trojan | shadowsocks | hysteria | hysteria2 |
+| ----------- | ----- | ------ | ----------- | -------- | --------- |
+| AikoPanelv2 | √     | √      | √           | √        | √         |
 
 ## Software installation - release
 
