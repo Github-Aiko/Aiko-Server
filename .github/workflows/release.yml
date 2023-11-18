@@ -3,6 +3,10 @@ name: Build and Release
 on:
   workflow_dispatch:
   push:
+    branches:
+      - master
+      - dev
+      - latest
     tags:
       - v*
     paths:
