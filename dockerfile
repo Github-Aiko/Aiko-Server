@@ -13,6 +13,6 @@ FROM alpine:latest
 RUN apk --update --no-cache add tzdata ca-certificates && \
     cp /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime && \
     mkdir /etc/Aiko-Server/
-COPY --from=builder /app/Aiko-Server /usr/local/bin
+COPY --from=builder /app/release /usr/local/bin
 
 ENTRYPOINT [ "Aiko-Server"]
