@@ -38,6 +38,6 @@ func showVersion() {
 	fmt.Printf("%s %s (%s) \n", codename, version, intro)
 	fmt.Printf("Supported cores: %s\n", strings.Join(vCore.RegisteredCore(), ", "))
 	// Warning
-	fmt.Println(Warn("This Backend Support Only AikoPanelv2."))
+	fmt.Println(Warn("This Backend Support Only AikoPanel."))
 	fmt.Println(Warn("The version have many changed for config, please check your config file"))
 }

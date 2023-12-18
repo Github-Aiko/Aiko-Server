@@ -188,7 +188,7 @@ func (h *HookServer) Mode() string {
 func (h *HookServer) StoreSelected() bool {
 	return false
 }
-func (h *HookServer) CacheFile() adapter.ClashCacheFile {
+func (h *HookServer) CacheFile() adapter.CacheFile {
 	return nil
 }
 func (h *HookServer) HistoryStorage() *urltest.HistoryStorage {

@@ -110,6 +110,10 @@ func (c *Controller) Close() error {
 	if c.onlineIpReportPeriodic != nil {
 		c.onlineIpReportPeriodic.Close()
 	}
+	err := c.server.DelNode(c.tag)
+	if err != nil {
+		return fmt.Errorf("del node error: %s", err)
+	}
 	return nil
 }
 

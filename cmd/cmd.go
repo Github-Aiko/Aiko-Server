@@ -25,7 +25,7 @@ var (
 func init() {
 	command.PersistentFlags().
 		StringVarP(&config, "config", "c",
-			"/etc/Aiko-Server/config.json", "config file path")
+			"/etc/Aiko-Server/aiko.json", "config file path")
 	command.PersistentFlags().
 		BoolVarP(&watch, "watch", "w",
 			true, "watch file path change")

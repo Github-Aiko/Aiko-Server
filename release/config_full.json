@@ -116,7 +116,7 @@
     },
     {
       // Tham chiếu tới tệp cấu hình gốc
-      "ConfigPath": "/etc/Aiko-Server/config.json"
+      "ConfigPath": "/etc/Aiko-Server/aiko.json"
     }
   ]
 }

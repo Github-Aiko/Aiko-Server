@@ -57,7 +57,7 @@ This project is for my personal learning, development and maintenance only, I do
 
 | Panel       | v2ray | trojan | shadowsocks | hysteria | hysteria2 |
 | ----------- | ----- | ------ | ----------- | -------- | --------- |
-| AikoPanelv2 | √     | √      | √           | √        | √         |
+| AikoPanel   | √     | √      | √           | √        | √         |
 
 ## Software installation - release
 
@@ -68,15 +68,15 @@ wget --no-check-certificate -O install.sh https://raw.githubusercontent.com/Aiko
 ### Docker installation
 
 ```
-docker pull aikocute/aiko-server:latest && docker run --restart=always --name aiko-server -d -v ${PATCH_TO_CONFIG}/config.json:/etc/Aiko-Server/config.json --network=host aikocute/aiko-server:latest
+docker pull aikocute/aiko-server:latest && docker run --restart=always --name aiko-server -d -v ${PATCH_TO_CONFIG}/aiko.json:/etc/Aiko-Server/aiko.json --network=host aikocute/aiko-server:latest
 ```
 
 ### Docker-compose installation
 
-Step 1 : Create Config File `config.json` in `/etc/Aiko-Server/config.json`
+Step 1 : Create Config File `aiko.json` in `/etc/Aiko-Server/aiko.json`
 
 ```
-mkdir -p /etc/Aiko-Server/config && cd /etc/Aiko-Server/config && wget https://raw.githubusercontent.com/Github-Aiko/Aiko-Server-Script/master/config.json
+mkdir -p /etc/Aiko-Server/config && cd /etc/Aiko-Server/config && wget https://raw.githubusercontent.com/Github-Aiko/Aiko-Server-Script/master/aiko.json
 ```
 
 Step 2 : Create `docker-compose.yml` in `/etc/Aiko-Server/docker-compose.yml`

@@ -18,6 +18,23 @@ import (
 	F "github.com/sagernet/sing/common/format"
 )
 
+type HttpNetworkConfig struct {
+	Header struct {
+		Type     string           `json:"type"`
+		Request  *json.RawMessage `json:"request"`
+		Response *json.RawMessage `json:"response"`
+	} `json:"header"`
+}
+
+type HttpRequest struct {
+	Version string   `json:"version"`
+	Method  string   `json:"method"`
+	Path    []string `json:"path"`
+	Headers struct {
+		Host []string `json:"Host"`
+	} `json:"headers"`
+}
+
 type WsNetworkConfig struct {
 	Path    string            `json:"path"`
 	Headers map[string]string `json:"headers"`
@@ -74,6 +91,7 @@ func getInboundOptions(tag string, info *panel.NodeInfo, c *conf.Options) (optio
 			Enabled:    true,
 			ShortID:    []string{v.TlsSettings.ShortId},
 			PrivateKey: v.TlsSettings.PrivateKey,
+			Xver:       v.TlsSettings.Xver,
 			Handshake: option.InboundRealityHandshakeOptions{
 				ServerOptions: option.ServerOptions{
 					Server:     dest,
@@ -94,7 +112,31 @@ func getInboundOptions(tag string, info *panel.NodeInfo, c *conf.Options) (optio
 		}
 		switch n.Network {
 		case "tcp":
-			t.Type = ""
+			if len(n.NetworkSettings) != 0 {
+				network := HttpNetworkConfig{}
+				err := json.Unmarshal(n.NetworkSettings, &network)
+				if err != nil {
+					return option.Inbound{}, fmt.Errorf("decode NetworkSettings error: %s", err)
+				}
+				//Todo fix http options
+				if network.Header.Type == "http" {
+					t.Type = network.Header.Type
+					var request HttpRequest
+					if network.Header.Request != nil {
+						err = json.Unmarshal(*network.Header.Request, &request)
+						if err != nil {
+							return option.Inbound{}, fmt.Errorf("decode HttpRequest error: %s", err)
+						}
+						t.HTTPOptions.Host = request.Headers.Host
+						t.HTTPOptions.Path = request.Path[0]
+						t.HTTPOptions.Method = request.Method
+					}
+				} else {
+					t.Type = ""
+				}
+			} else {
+				t.Type = ""
+			}
 		case "ws":
 			var (
 				path    string
@@ -139,15 +181,19 @@ func getInboundOptions(tag string, info *panel.NodeInfo, c *conf.Options) (optio
 			in.Type = "vless"
 			in.VLESSOptions = option.VLESSInboundOptions{
 				ListenOptions: listen,
-				TLS:           &tls,
-				Transport:     &t,
+				InboundTLSOptionsContainer: option.InboundTLSOptionsContainer{
+					TLS: &tls,
+				},
+				Transport: &t,
 			}
 		} else {
 			in.Type = "vmess"
 			in.VMessOptions = option.VMessInboundOptions{
 				ListenOptions: listen,
-				TLS:           &tls,
-				Transport:     &t,
+				InboundTLSOptionsContainer: option.InboundTLSOptionsContainer{
+					TLS: &tls,
+				},
+				Transport: &t,
 			}
 		}
 	case "shadowsocks":
@@ -180,7 +226,9 @@ func getInboundOptions(tag string, info *panel.NodeInfo, c *conf.Options) (optio
 		in.Type = "trojan"
 		in.TrojanOptions = option.TrojanInboundOptions{
 			ListenOptions: listen,
-			TLS:           &tls,
+			InboundTLSOptionsContainer: option.InboundTLSOptionsContainer{
+				TLS: &tls,
+			},
 		}
 		if c.SingOptions.FallBackConfigs != nil {
 			// fallback handling
@@ -205,15 +253,22 @@ func getInboundOptions(tag string, info *panel.NodeInfo, c *conf.Options) (optio
 			UpMbps:        info.Hysteria.UpMbps,
 			DownMbps:      info.Hysteria.DownMbps,
 			Obfs:          info.Hysteria.Obfs,
-			TLS:           &tls,
+			InboundTLSOptionsContainer: option.InboundTLSOptionsContainer{
+				TLS: &tls,
+			},
 		}
 	case "hysteria2":
 		in.Type = "hysteria2"
 		var obfs *option.Hysteria2Obfs
-		if info.Hysteria2.ObfsType != "" {
+		if info.Hysteria2.ObfsType != "" && info.Hysteria2.ObfsPassword != "" {
 			obfs = &option.Hysteria2Obfs{
 				Type:     info.Hysteria2.ObfsType,
 				Password: info.Hysteria2.ObfsPassword,
+			}
+		} else if info.Hysteria2.ObfsType != "" {
+			obfs = &option.Hysteria2Obfs{
+				Type:     "salamander",
+				Password: info.Hysteria2.ObfsType,
 			}
 		}
 		in.Hysteria2Options = option.Hysteria2InboundOptions{
@@ -221,7 +276,9 @@ func getInboundOptions(tag string, info *panel.NodeInfo, c *conf.Options) (optio
 			UpMbps:        info.Hysteria2.UpMbps,
 			DownMbps:      info.Hysteria2.DownMbps,
 			Obfs:          obfs,
-			TLS:           &tls,
+			InboundTLSOptionsContainer: option.InboundTLSOptionsContainer{
+				TLS: &tls,
+			},
 		}
 	}
 	return in, nil

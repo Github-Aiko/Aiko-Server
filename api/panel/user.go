@@ -26,7 +26,7 @@ type UserListBody struct {
 
 // GetUserList will pull user form sspanel
 func (c *Client) GetUserList() (UserList []UserInfo, err error) {
-	const path = "/api/v2/server/Aiko/user"
+	const path = "/api/v1/server/Aiko/user"
 	r, err := c.client.R().
 		SetHeader("If-None-Match", c.userEtag).
 		Get(path)
@@ -82,7 +82,7 @@ func (c *Client) ReportUserTraffic(userTraffic []UserTraffic) error {
 	for i := range userTraffic {
 		data[userTraffic[i].UID] = []int64{userTraffic[i].Upload, userTraffic[i].Download}
 	}
-	const path = "/api/v2/server/Aiko/push"
+	const path = "/api/v1/server/Aiko/push"
 	r, err := c.client.R().
 		SetBody(data).
 		ForceContentType("application/json").
@@ -96,7 +96,7 @@ func (c *Client) ReportUserTraffic(userTraffic []UserTraffic) error {
 
 func (c *Client) ReportNodeOnlineUsers(data *map[int][]string, reportOnline *map[int]int) error {
 	c.LastReportOnline = *reportOnline
-	const path = "/api/v2/server/Aiko/alive"
+	const path = "/api/v1/server/Aiko/alive"
 	r, err := c.client.R().
 		SetBody(data).
 		ForceContentType("application/json").

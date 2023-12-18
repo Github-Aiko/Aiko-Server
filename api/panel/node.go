@@ -78,6 +78,7 @@ type TlsSettings struct {
 	ServerPort string `json:"server_port"`
 	ShortId    string `json:"short_id"`
 	PrivateKey string `json:"private_key"`
+	Xver       uint8  `json:"xver,string"`
 }
 
 type RealityConfig struct {
@@ -121,13 +122,13 @@ type Rules struct {
 }
 
 func (c *Client) GetNodeInfo() (node *NodeInfo, err error) {
-	const path = "/api/v2/server/Aiko/config"
+	const path = "/api/v1/server/Aiko/config"
 	r, err := c.client.
 		R().
 		SetHeader("If-None-Match", c.nodeEtag).
 		Get(path)
 	if err = c.checkResponse(r, path, err); err != nil {
-		return
+		return nil, err
 	}
 	if r.StatusCode() == 304 {
 		return nil, nil
@@ -237,9 +238,7 @@ func (c *Client) GetNodeInfo() (node *NodeInfo, err error) {
 			}
 		case "dns":
 			var domains []string
-			for _, v := range matchs {
-				domains = append(domains, v)
-			}
+			domains = append(domains, matchs...)
 			if matchs[0] != "main" {
 				node.RawDNS.DNSMap[strconv.Itoa(i)] = map[string]interface{}{
 					"address": cm.Routes[i].ActionValue,
@@ -248,7 +247,6 @@ func (c *Client) GetNodeInfo() (node *NodeInfo, err error) {
 			} else {
 				dns := []byte(strings.Join(matchs[1:], ""))
 				node.RawDNS.DNSJson = dns
-				break
 			}
 		}
 	}

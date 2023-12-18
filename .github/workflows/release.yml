@@ -5,10 +5,7 @@ on:
   push:
     branches:
       - master
-      - dev
-      - latest
-    tags:
-      - v*
+      - dev_new
     paths:
       - "**/*.go"
       - "go.mod"
@@ -30,14 +27,74 @@ jobs:
     strategy:
       matrix:
         # Include amd64 on all platforms.
-        goos: [linux]
-        goarch: [amd64, arm64]
+        goos: [windows, freebsd, linux, darwin]
+        goarch: [amd64, 386]
+        exclude:
+          # Exclude i386 on darwin.
+          - goarch: 386
+            goos: darwin
+        include:
+          # BEIGIN MacOS ARM64
+          - goos: darwin
+            goarch: arm64
+          # END MacOS ARM64
+          # BEGIN Linux ARM 5 6 7
+          - goos: linux
+            goarch: arm
+            goarm: 7
+          - goos: linux
+            goarch: arm
+            goarm: 6
+          - goos: linux
+            goarch: arm
+            goarm: 5
+          # END Linux ARM 5 6 7
+          # BEGIN Android ARM 8
+          - goos: android
+            goarch: arm64
+          # END Android ARM 8
+          # BEGIN Other architectures
+          # BEGIN riscv64 & ARM64
+          - goos: linux
+            goarch: arm64
+          - goos: linux
+            goarch: riscv64
+          # END riscv64 & ARM64
+          # BEGIN MIPS
+          - goos: linux
+            goarch: mips64
+          - goos: linux
+            goarch: mips64le
+          - goos: linux
+            goarch: mipsle
+          - goos: linux
+            goarch: mips
+          # END MIPS
+          # BEGIN PPC
+          - goos: linux
+            goarch: ppc64
+          - goos: linux
+            goarch: ppc64le
+          # END PPC
+          # BEGIN FreeBSD ARM
+          - goos: freebsd
+            goarch: arm64
+          - goos: freebsd
+            goarch: arm
+            goarm: 7
+          # END FreeBSD ARM
+          # BEGIN S390X
+          - goos: linux
+            goarch: s390x
+          # END S390X
+          # END Other architectures
       fail-fast: false
 
     runs-on: ubuntu-latest
     env:
       GOOS: ${{ matrix.goos }}
       GOARCH: ${{ matrix.goarch }}
+      GOARM: ${{ matrix.goarm }}
       CGO_ENABLED: 0
     steps:
       - name: Checkout codebase
@@ -47,7 +104,7 @@ jobs:
         run: |
           export _NAME=$(jq ".[\"$GOOS-$GOARCH$GOARM$GOMIPS\"].friendlyName" -r < .github/build/friendly-filenames.json)
           echo "GOOS: $GOOS, GOARCH: $GOARCH, GOARM: $GOARM, GOMIPS: $GOMIPS, RELEASE_NAME: $_NAME"
-          echo "::set-output name=ASSET_NAME::$_NAME"
+          echo "ASSET_NAME=$_NAME" >> $GITHUB_OUTPUT
           echo "ASSET_NAME=$_NAME" >> $GITHUB_ENV
       - name: Set up Go
         uses: actions/setup-go@v3
@@ -68,23 +125,30 @@ jobs:
         run: |
           echo "version: $version"
           mkdir -p build_assets
-          go build -v -o build_assets/Aiko-Server -tags "sing xray with_reality_server with_quic" -trimpath -ldflags "-X 'github.com/Github-Aiko/Aiko-Server/cmd.version=$version' -s -w -buildid="
+          go build -v -o build_assets/Aiko-Server -tags "sing xray with_reality_server with_quic with_grpc with_utls with_wireguard with_acme" -trimpath -ldflags "-X 'github.com/Github-Aiko/Aiko-Server/cmd.version=$version' -s -w -buildid="
 
+      - name: Build Mips softfloat Aiko-Server
+        if: matrix.goarch == 'mips' || matrix.goarch == 'mipsle'
+        run: |
+          echo "version: $version"
+          GOMIPS=softfloat go build -v -o build_assets/Aiko-Server_softfloat -tags "sing xray with_reality_server with_quic with_grpc with_utls with_wireguard with_acme" -trimpath -ldflags "-X 'github.com/Github-Aiko/Aiko-Server/cmd.version=$version' -s -w -buildid="
+      - name: Rename Windows Aiko-Server
+        if: matrix.goos == 'windows'
+        run: |
+          cd ./build_assets || exit 1
+          mv Aiko-Server Aiko-Server.exe
       - name: Prepare to release
         run: |
           cp ${GITHUB_WORKSPACE}/README.md ./build_assets/README.md
           cp ${GITHUB_WORKSPACE}/LICENSE ./build_assets/LICENSE
           cp ${GITHUB_WORKSPACE}/release/*.json ./build_assets/
-          LIST=('geoip geoip geoip' 'domain-list-community dlc geosite')
+          LIST=('geoip' 'geosite')
           for i in "${LIST[@]}"
           do
-            INFO=($(echo $i | awk 'BEGIN{FS=" ";OFS=" "} {print $1,$2,$3}'))
-            FILE_NAME="${INFO[2]}.dat"
-            echo -e "Downloading ${FILE_NAME}..."
-            curl -L "https://github.com/v2fly/${INFO[0]}/releases/latest/download/${INFO[1]}.dat" -o ./build_assets/${FILE_NAME}
-            echo -e "Verifying HASH key..."
-            HASH="$(curl -sL "https://github.com/v2fly/${INFO[0]}/releases/latest/download/${INFO[1]}.dat.sha256sum" | awk -F ' ' '{print $1}')"
-            [ "$(sha256sum "./build_assets/${FILE_NAME}" | awk -F ' ' '{print $1}')" == "${HASH}" ] || { echo -e "The HASH key of ${FILE_NAME} does not match cloud one."; exit 1; }
+            DOWNLOAD_URL="https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/${i}.dat"
+            FILE_NAME="${i}.dat"
+            echo -e "Downloading ${DOWNLOAD_URL}..."
+            curl -L "${DOWNLOAD_URL}" -o ./build_assets/${FILE_NAME}
           done
       - name: Create ZIP archive
         shell: bash
