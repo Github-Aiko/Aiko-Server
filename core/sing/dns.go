@@ -2,12 +2,11 @@ package sing
 
 import (
 	"bytes"
-	"os"
-	"strings"
-
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
 	"github.com/goccy/go-json"
 	log "github.com/sirupsen/logrus"
+	"os"
+	"strings"
 )
 
 func updateDNSConfig(node *panel.NodeInfo) (err error) {

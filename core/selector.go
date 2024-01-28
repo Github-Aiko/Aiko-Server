@@ -3,10 +3,9 @@ package core
 import (
 	"errors"
 	"fmt"
+	"github.com/hashicorp/go-multierror"
 	"strings"
 	"sync"
-
-	"github.com/hashicorp/go-multierror"
 
 	"github.com/Github-Aiko/Aiko-Server/api/panel"
 	"github.com/Github-Aiko/Aiko-Server/conf"

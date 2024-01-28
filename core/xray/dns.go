@@ -63,7 +63,7 @@ func saveDnsConfig(dns []byte, dnsPath string) (err error) {
 	}
 	if !bytes.Equal(currentData, dns) {
 		coreDnsConfig := &coreConf.DNSConfig{}
-		if err = json.NewDecoder(bytes.NewReader(dns)).Decode(coreDnsConfig); err != nil {
+		if err = json.Unmarshal(dns, coreDnsConfig); err != nil {
 			log.WithField("err", err).Error("Failed to unmarshal DNS config")
 		}
 		_, err := coreDnsConfig.Build()

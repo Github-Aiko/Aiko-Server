@@ -2,6 +2,7 @@ package conf
 
 import (
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/Github-Aiko/Aiko-Server/common/json5"
@@ -30,5 +31,17 @@ func (p *Conf) LoadFromPath(filePath string) error {
 		return fmt.Errorf("open config file error: %s", err)
 	}
 	defer f.Close()
-	return json.NewDecoder(json5.NewTrimNodeReader(f)).Decode(p)
+
+	reader := json5.NewTrimNodeReader(f)
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return fmt.Errorf("read config file error: %s", err)
+	}
+
+	err = json.Unmarshal(data, p)
+	if err != nil {
+		return fmt.Errorf("unmarshal config error: %s", err)
+	}
+
+	return nil
 }

@@ -223,12 +223,62 @@ func getInboundOptions(tag string, info *panel.NodeInfo, c *conf.Options) (optio
 			Password: randomPasswd,
 		}}
 	case "trojan":
+		n := info.Trojan
+		t := option.V2RayTransportOptions{
+			Type: n.Network,
+		}
+		switch n.Network {
+		case "tcp":
+			t.Type = ""
+		case "ws":
+			var (
+				path    string
+				ed      int
+				headers map[string]option.Listable[string]
+			)
+			if len(n.NetworkSettings) != 0 {
+				network := WsNetworkConfig{}
+				err := json.Unmarshal(n.NetworkSettings, &network)
+				if err != nil {
+					return option.Inbound{}, fmt.Errorf("decode NetworkSettings error: %s", err)
+				}
+				var u *url.URL
+				u, err = url.Parse(network.Path)
+				if err != nil {
+					return option.Inbound{}, fmt.Errorf("parse path error: %s", err)
+				}
+				path = u.Path
+				ed, _ = strconv.Atoi(u.Query().Get("ed"))
+				headers = make(map[string]option.Listable[string], len(network.Headers))
+				for k, v := range network.Headers {
+					headers[k] = option.Listable[string]{
+						v,
+					}
+				}
+			}
+			t.WebsocketOptions = option.V2RayWebsocketOptions{
+				Path:                path,
+				EarlyDataHeaderName: "Sec-WebSocket-Protocol",
+				MaxEarlyData:        uint32(ed),
+				Headers:             headers,
+			}
+		case "grpc":
+			if len(n.NetworkSettings) != 0 {
+				err := json.Unmarshal(n.NetworkSettings, &t.GRPCOptions)
+				if err != nil {
+					return option.Inbound{}, fmt.Errorf("decode NetworkSettings error: %s", err)
+				}
+			}
+		default:
+			t.Type = ""
+		}
 		in.Type = "trojan"
 		in.TrojanOptions = option.TrojanInboundOptions{
 			ListenOptions: listen,
 			InboundTLSOptionsContainer: option.InboundTLSOptionsContainer{
 				TLS: &tls,
 			},
+			Transport: &t,
 		}
 		if c.SingOptions.FallBackConfigs != nil {
 			// fallback handling
